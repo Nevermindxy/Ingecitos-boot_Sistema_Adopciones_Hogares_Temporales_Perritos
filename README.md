@@ -4,7 +4,7 @@
 
 
 ---
-##  Integrantes
+##  Integrantes:
 
 | Nombre | GitHub |
 | :--- | :--- |
@@ -13,3 +13,5 @@
 | [Brayan Oruña Guarachi] | [AguaC0nGas] |
 | [Yasser Caba Murillo] | [Treund22] |
 | [Harold Alvarez Limachi] | [HaroldAlvarez06] |
+
+Ingecitos Bots
