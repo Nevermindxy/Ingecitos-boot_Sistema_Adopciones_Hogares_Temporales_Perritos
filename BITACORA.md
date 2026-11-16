@@ -16,3 +16,12 @@
   * Inclusión del título del proyecto, descripción del problema, objetivos y estructura básica del sistema de adopciones y hogares temporales.
   * Verificación del formato visual mediante la vista previa de Markdown (`Ctrl + Shift + V`).
 * **Estado:** cd Ingecitos-boot_Sistema_Adopciones_Hogares_Temporales_Perritos Completado
+### Sesión 2: Primeros avances (`sistema_perritos.py`)
+* **Fecha:** [13/11/2026]
+* **Objetivo:** Hacer un primer maquetado del archivo que queremos presentar
+* **Actividades realizadas:**
+  * Creación del primer maquetado con funciones basica con la libreria tkinter y su adicion al codigo
+  * Creacion del segundo maquetado-Importacion el módulo de widgets temáticos para implementar objetos visuales mas modernos y distribucion de los recursos del codigo
+  * Se realizaron 2 commits del codigo en esta sesion
+
+ 
