@@ -14,7 +14,7 @@
 | Emilio Walter Garcia Burgoa | Nevermindxy | [Nevermindxy](https://github.com/Nevermindxy)| Developer
 | Ignacio Fernandez Itusaca | AztecA8789 |[AztecA8789] (https://github.com/aztecA8789)| Document Master, Developer
 | Brayan Oruña Guarachi | AguaC0nGas | (https://github.com/AguaC0nGas) | Developer
-| Yasser Caba Murillo | Treund22| [Nevermindxy | Scrum Master, Developer
+| Yasser Caba Murillo | Treund22| [https://github.com/Treund22 | Scrum Master, Developer
 | Harold Alvarez Limachi | HaroldAlvarez06 | [HaroldAlvarez06](https://github.com/HaroldAlvarez06)|Product Owner, Developer
 
 
