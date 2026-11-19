@@ -34,4 +34,10 @@
  * **Fecha:** [19/11/2026]
 * **Objetivo:** Implementar las reglas de validación de datos entre la interfaz en python y la base de datos MySQL                     para evitar el ingreso erroneo de registros
 * * **Actividades realizadas:**
-  * Implementacion
+  * Implementacion de validaciones en los formularios de registros (verificamos  los formatos de texto, los campos obligatorios)
+  * Aplicamos restricciones de integridad en las consultas SQL
+  * Ejecutamos las pruebas de insercion, actualizacion y consulta verificando las tablas
+### Sesión 4: Adicion de archivos (conexion.py)  
+ * **Fecha:** [19/11/2026]
+* **Objetivo:** 
+* * **Actividades realizadas:**
