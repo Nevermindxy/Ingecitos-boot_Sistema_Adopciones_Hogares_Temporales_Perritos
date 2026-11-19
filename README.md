@@ -16,6 +16,11 @@
 | Brayan Oruña Guarachi | AguaC0nGas | (https://github.com/AguaC0nGas) | Developer
 | Yasser Caba Murillo | Treund22| [https://github.com/Treund22 | Scrum Master, Developer
 | Harold Alvarez Limachi | HaroldAlvarez06 | [HaroldAlvarez06](https://github.com/HaroldAlvarez06)|Product Owner, Developer
-
-
-
+## Pasos para levantar el programa y la base de datos
+### Requisitos previos
+Tener instalado un programa que pueda correr un archivo .sql(MySql Workbench, DBeaver, etc)
+### Instalacion
+Se debe instalar XAMPP para correr la base de datos
+Se debe instalar Python version 3.12(recomendable)
+tener un IDE para trabajar con los archivos .py(Visual Studio Code)
+instalar dentro de la terminar de la IDE el conector con este comando pip install mysql-connector-python---En caso de que no funcione puede buscar alternativas para instalar el conector
