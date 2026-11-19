@@ -15,6 +15,6 @@
 | Ignacio Fernandez Itusaca | AztecA8789 | Nevermindxy| Document Master, Developer
 | Brayan Oruña Guarachi | AguaC0nGas | [Nevermindxy | Developer
 | Yasser Caba Murillo | Treund22| [Nevermindxy | Scrum Master, Developer
-| Harold Alvarez Limachi | HaroldAlvarez06 | Nevermindxy |Product Owner, Developer
+| Harold Alvarez Limachi | HaroldAlvarez06 | Nevermindxy (https://github.com/HaroldAlvarez06) |Product Owner, Developer
 
 
