@@ -23,5 +23,21 @@
   * Creación del primer maquetado con funciones basica con la libreria tkinter y su adicion al codigo
   * Creacion del segundo maquetado-Importacion el módulo de widgets temáticos para implementar objetos visuales mas modernos y distribucion de los recursos del codigo
   * Se realizaron 2 commits del codigo en esta sesion
-
- 
+### Sesión 3: Elaboración de Base de Datos (sistemas_perritos)
+* **Fecha:** [15/11/2026]
+* **Objetivo:** Elaborar la base de datos del proyecto y conectarlo con python
+* * **Actividades realizadas:**
+  * Se elaboro la base de datos y se conecto con la interfaz de python mediante la extension MySQL.conection
+  * Se verifico que funcione la conección
+  * Con la extensión se utilizo las funciones para que coincidan las tablas
+### Sesión 4: Integridad de datos y validación 
+ * **Fecha:** [19/11/2026]
+* **Objetivo:** Implementar las reglas de validación de datos entre la interfaz en python y la base de datos MySQL                     para evitar el ingreso erroneo de registros
+* * **Actividades realizadas:**
+  * Implementacion de validaciones en los formularios de registros (verificamos  los formatos de texto, los campos obligatorios)
+  * Aplicamos restricciones de integridad en las consultas SQL
+  * Ejecutamos las pruebas de insercion, actualizacion y consulta verificando las tablas
+### Sesión 4: Adicion de archivos (conexion.py)  
+ * **Fecha:** [19/11/2026]
+* **Objetivo:** 
+* * **Actividades realizadas:**
