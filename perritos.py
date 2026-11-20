@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk, messagebox
+from datetime import datetime
 
 class GestionPerritos:
     def __init__(self, parent, db):
@@ -9,7 +10,7 @@ class GestionPerritos:
         self.cargar_datos()
 
     def crear_widgets(self):
-        titulo = Label(self.parent, text="Gestión de Perritos", font=("Arial", 16, "bold"))
+        titulo = Label(self.parent, text="Registro de Perritos", font=("Arial", 16, "bold"))
         titulo.pack(pady=10)
 
         izq = Frame(self.parent)
@@ -47,13 +48,11 @@ class GestionPerritos:
         self.fecha = Entry(izq, width=28)
         self.fecha.grid(row=7, column=1, pady=3)
 
-        # Botones
         Button(izq, text="Añadir", width=15, command=self.anadir).grid(row=9, column=0, pady=15)
         Button(izq, text="Actualizar", width=15, command=self.actualizar).grid(row=9, column=1)
         Button(izq, text="Eliminar", width=15, command=self.eliminar).grid(row=10, column=0)
         Button(izq, text="Limpiar", width=15, command=self.limpiar).grid(row=10, column=1)
 
-        # Tabla y Búsqueda
         Label(self.parent, text="Buscar:").place(x=430, y=50)
         self.buscar = Entry(self.parent, width=40)
         self.buscar.place(x=490, y=50)
@@ -74,13 +73,40 @@ class GestionPerritos:
         self.tabla.place(x=430, y=85)
         self.tabla.bind("<<TreeviewSelect>>", self.seleccionar_fila)
 
+    def validar_campos(self):
+        nom = self.nombre.get().strip()
+        if not nom:
+            messagebox.showwarning("Dato inválido", "El nombre del perrito es obligatorio.")
+            return None
+        try:
+            edad_num = int(self.edad.get().strip())
+            if edad_num < 0 or edad_num > 30:
+                messagebox.showerror("Dato inválido", "La edad debe estar entre 0 y 30 años.")
+                return None
+        except ValueError:
+            messagebox.showerror("Dato inválido", "La edad debe ser un número entero.")
+            return None
+
+        fecha_txt = self.fecha.get().strip()
+        if fecha_txt:
+            try:
+                datetime.strptime(fecha_txt, "%Y-%m-%d")
+            except ValueError:
+                messagebox.showerror("Fecha inválida", "Usa el formato AAAA-MM-DD (ej. 2026-11-19).")
+                return None
+        else:
+            fecha_txt = None
+
+        estado_val = self.estado.get() if self.estado.get() else "Disponible"
+        return (nom, self.raza.get().strip(), edad_num, self.sexo.get(), self.tamano.get(), estado_val, self.ubicacion.get().strip(), fecha_txt)
+
     def cargar_datos(self, filtro=""):
         for fila in self.tabla.get_children():
             self.tabla.delete(fila)
         
-        if filtro:
+        if filtro.strip():
             sql = "SELECT id_perro, nombre, raza, edad, estado FROM perro WHERE nombre LIKE %s OR raza LIKE %s"
-            param = f"%{filtro}%"
+            param = f"%{filtro.strip()}%"
             cursor = self.db.ejecutar(sql, (param, param))
         else:
             cursor = self.db.ejecutar("SELECT id_perro, nombre, raza, edad, estado FROM perro")
@@ -109,19 +135,10 @@ class GestionPerritos:
             self.fecha.insert(0, str(datos[7]) if datos[7] is not None else "")
 
     def anadir(self):
-        if self.nombre.get() == "":
-            messagebox.showwarning("Falta dato", "Escribí el nombre")
+        datos = self.validar_campos()
+        if not datos:
             return
-        try:
-            edad_num = int(self.edad.get())
-        except ValueError:
-            messagebox.showerror("Error", "La edad tiene que ser un número")
-            return
-
-        fecha_val = self.fecha.get() if self.fecha.get() != "" else None
         sql = "INSERT INTO perro (nombre, raza, edad, sexo, tamano, estado, ubicacion, fecha_registro) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-        datos = (self.nombre.get(), self.raza.get(), edad_num, self.sexo.get(), self.tamano.get(), self.estado.get(), self.ubicacion.get(), fecha_val)
-        
         if self.db.ejecutar(sql, datos):
             self.db.commit()
             self.cargar_datos()
@@ -133,19 +150,12 @@ class GestionPerritos:
         if not seleccionado:
             messagebox.showwarning("Atención", "Selecciona un perrito de la tabla")
             return
-        try:
-            edad_num = int(self.edad.get())
-        except ValueError:
-            messagebox.showerror("Error", "La edad tiene que ser un número")
+        datos = self.validar_campos()
+        if not datos:
             return
-
         id_p = self.tabla.item(seleccionado[0], "values")[0]
-        fecha_val = self.fecha.get() if self.fecha.get() != "" else None
-
         sql = """UPDATE perro SET nombre=%s, raza=%s, edad=%s, sexo=%s, tamano=%s, estado=%s, ubicacion=%s, fecha_registro=%s WHERE id_perro=%s"""
-        datos = (self.nombre.get(), self.raza.get(), edad_num, self.sexo.get(), self.tamano.get(), self.estado.get(), self.ubicacion.get(), fecha_val, id_p)
-        
-        if self.db.ejecutar(sql, datos):
+        if self.db.ejecutar(sql, datos + (id_p,)):
             self.db.commit()
             self.cargar_datos()
             self.limpiar()
@@ -155,7 +165,6 @@ class GestionPerritos:
         seleccionado = self.tabla.selection()
         if not seleccionado:
             return
-        
         if messagebox.askyesno("Confirmar", "¿Seguro que deseas eliminar este registro?"):
             for s in seleccionado:
                 id_p = self.tabla.item(s, "values")[0]
