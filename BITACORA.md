@@ -37,7 +37,21 @@
   * Implementacion de validaciones en los formularios de registros (verificamos  los formatos de texto, los campos obligatorios)
   * Aplicamos restricciones de integridad en las consultas SQL
   * Ejecutamos las pruebas de insercion, actualizacion y consulta verificando las tablas
-### Sesión 4: Adicion de archivos (conexion.py)  
+### Sesión 5: Adicion de archivos (conexion.py, login.py, adopciones.py, main.py, perritos.py)  
  * **Fecha:** [19/11/2026]
-* **Objetivo:** 
+* **Objetivo:** Migracion de datos a programacion modular
 * * **Actividades realizadas:**
+* Se realizó la migración del código base hacia un enfoque modular, separando las interfaces y la lógica de base de datos en distintos módulos independientes.
+* Se distribuyó el desarrollo de forma equitativa, donde *cada integrante del equipo se encargó de programar e implementar 2 archivos* específicos del sistema.
+* Se adicionaron e integraron los siguientes archivos al proyecto:
+* main.py (Punto de entrada principal)
+* conexion.py (Gestión de base de datos)
+* login.py (Autenticación y acceso)
+* perritos.py (Módulo de registro y gestión de canes)
+* adoptantes.py (Módulo de perfiles de usuarios)
+* hogares.py (Módulo de gestión de hogares temporales)
+* adopciones.py (Módulo de procesos de adopción)
+* asignaciones.py (Módulo de vinculación a hogares temporales)
+* reportes.py (Módulo de interfaz de estadísticas)
+* markov.py (Módulo del modelo matemático y gráficas)
+
