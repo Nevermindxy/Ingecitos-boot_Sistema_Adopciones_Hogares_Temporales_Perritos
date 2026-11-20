@@ -25,7 +25,7 @@ class Login:
         Button(self.root, text="Ingresar", width=15, bg="lightblue", command=self.verificar).pack(pady=20)
 
     def verificar(self):
-        if self.usuario.get() == "admin" and self.password.get() == "123":
+        if self.usuario.get() == "admin" and self.password.get() == "somosingecitos":
             self.root.destroy()
             self.callback_exito()
         else:
