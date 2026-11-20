@@ -14,19 +14,19 @@ class GestionHogares:
         izq = Frame(self.parent)
         izq.place(x=20, y=50)
 
-        Label(izq, text="Responsable:").grid(row=0, column=0, sticky="w")
+        Label(izq, text="Responsable:*").grid(row=0, column=0, sticky="w")
         self.responsable = Entry(izq, width=28)
         self.responsable.grid(row=0, column=1, pady=4)
 
-        Label(izq, text="Teléfono:").grid(row=1, column=0, sticky="w")
+        Label(izq, text="Teléfono:*").grid(row=1, column=0, sticky="w")
         self.telefono = Entry(izq, width=28)
         self.telefono.grid(row=1, column=1, pady=4)
 
-        Label(izq, text="Dirección:").grid(row=2, column=0, sticky="w")
+        Label(izq, text="Dirección:*").grid(row=2, column=0, sticky="w")
         self.direccion = Entry(izq, width=28)
         self.direccion.grid(row=2, column=1, pady=4)
 
-        Label(izq, text="Capacidad (perros):").grid(row=3, column=0, sticky="w")
+        Label(izq, text="Capacidad (perros):*").grid(row=3, column=0, sticky="w")
         self.capacidad = Entry(izq, width=28)
         self.capacidad.grid(row=3, column=1, pady=4)
 
@@ -53,19 +53,21 @@ class GestionHogares:
         tel = self.telefono.get().strip()
         dir_txt = self.direccion.get().strip()
 
-        if not resp:
-            messagebox.showwarning("Falta dato", "Ingresa el nombre del responsable.")
+        if not resp or not tel or not dir_txt:
+            messagebox.showwarning("Faltan datos", "Nombre, teléfono y dirección son obligatorios.")
             return None
-        if tel and (not tel.isdigit() or len(tel) < 7):
+            
+        if not tel.isdigit() or len(tel) < 7:
             messagebox.showerror("Teléfono inválido", "El teléfono debe contener solo números (mínimo 7 dígitos).")
             return None
+            
         try:
             cap = int(self.capacidad.get().strip())
             if cap <= 0:
                 messagebox.showerror("Capacidad inválida", "La capacidad debe ser mayor a 0.")
                 return None
         except ValueError:
-            messagebox.showerror("Error", "La capacidad debe ser un número entero.")
+            messagebox.showerror("Error", "La capacidad debe ser un número entero y no estar vacía.")
             return None
 
         return (resp, tel, dir_txt, cap)
@@ -86,15 +88,14 @@ class GestionHogares:
         datos = cursor.fetchone()
         if datos:
             self.limpiar()
-            self.responsable.insert(0, datos[0] or "")
-            self.telefono.insert(0, datos[1] or "")
-            self.direccion.insert(0, datos[2] or "")
-            self.capacidad.insert(0, str(datos[3]) if datos[3] is not None else "")
+            self.responsable.insert(0, datos[0])
+            self.telefono.insert(0, datos[1])
+            self.direccion.insert(0, datos[2])
+            self.capacidad.insert(0, str(datos[3]))
 
     def anadir(self):
         vals = self.validar_campos()
-        if not vals:
-            return
+        if not vals: return
         sql = "INSERT INTO hogar_temporal (nombre_responsable, telefono, direccion, capacidad) VALUES (%s,%s,%s,%s)"
         if self.db.ejecutar(sql, vals):
             self.db.commit()
@@ -105,11 +106,10 @@ class GestionHogares:
     def actualizar(self):
         sel = self.tabla.selection()
         if not sel:
-            messagebox.showwarning("Atención", "Selecciona un hogar de la tabla")
+            messagebox.showwarning("Atención", "Selecciona un hogar")
             return
         vals = self.validar_campos()
-        if not vals:
-            return
+        if not vals: return
         id_h = self.tabla.item(sel[0], "values")[0]
         sql = "UPDATE hogar_temporal SET nombre_responsable=%s, telefono=%s, direccion=%s, capacidad=%s WHERE id_hogar=%s"
         if self.db.ejecutar(sql, vals + (id_h,)):
