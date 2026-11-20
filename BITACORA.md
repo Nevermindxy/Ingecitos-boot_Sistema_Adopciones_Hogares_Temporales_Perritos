@@ -54,3 +54,4 @@
 * asignaciones.py (Módulo de vinculación a hogares temporales)
 * reportes.py (Módulo de interfaz de estadísticas)
 * markov.py (Módulo del modelo matemático y gráficas)
+
