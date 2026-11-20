@@ -16,11 +16,36 @@
 | Brayan Oruña Guarachi | AguaC0nGas | [AguaC0nGas](https://github.com/AguaC0nGas) | Developer
 | Yasser Caba Murillo | Treund22| [Treund22](https://github.com/Treund22)| Scrum Master, Developer
 | Harold Alvarez Limachi | HaroldAlvarez06 | [HaroldAlvarez06](https://github.com/HaroldAlvarez06)|Product Owner, Developer
-## Pasos para levantar el programa y la base de datos
-### Requisitos previos
-Tener instalado un programa que pueda correr un archivo .sql(MySql Workbench, DBeaver, etc)
-### Instalacion
-Se debe instalar XAMPP para correr la base de datos
-Se debe instalar Python version 3.12(recomendable)
-tener un IDE para trabajar con los archivos .py(Visual Studio Code)
-instalar dentro de la terminar de la IDE el conector con este comando pip install mysql-connector-python---En caso de que no funcione puede buscar alternativas para instalar el conector
+##  Pasos para levantar el programa y la base de datos
+
+###  Requisitos previos
+* **Python:** Versión 3.12 o superior (recomendado).
+* **Servidor MySQL:** Tener instalado XAMPP (para usar el servidor local).
+* **Gestor de BD:** Un programa para correr el archivo `.sql` (como MySQL Workbench, DBeaver o el mismo phpMyAdmin de XAMPP).
+* **Editor de Código:** Visual Studio Code o el IDE de tu preferencia.
+
+###  Instalación y Configuración
+
+**1. Preparar la Base de Datos:**
+* Inicia los servicios de **Apache** y **MySQL** desde el panel de control de XAMPP.
+* Abre tu gestor de base de datos.
+* Crea una nueva base de datos y ejecuta el archivo `.sql` del proyecto para generar las tablas correspondientes.
+
+**2. Descargar el Proyecto:**
+* Clona este repositorio o descarga el código fuente y ábrelo en tu IDE (ej. Visual Studio Code).
+
+**3. Instalar Dependencias:**
+* Abre la terminal integrada de tu IDE y ejecuta los siguientes comandos para instalar el conector de base de datos, las librerías matemáticas y la interfaz gráfica (por si tu versión de Python no la trajo incluida):
+  ```bash
+  pip install mysql-connector-python
+  pip install matplotlib
+  pip install numpy
+  pip install tk
+
+4. Configurar la Conexión (Opcional):
+
+ Por defecto, el sistema está configurado para XAMPP. Si tu usuario o contraseña de MySQL son diferentes, actualízalos dentro del archivo conexion.py.
+
+5. Ejecutar la Aplicación:
+
+ Finalmente, para iniciar el Sistema de Adopciones, ejecuta el archivo principal con el siguiente comando:
