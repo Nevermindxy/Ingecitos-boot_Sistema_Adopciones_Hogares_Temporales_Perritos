@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk, messagebox
-
+-
 class GestionAdoptantes:
     def __init__(self, parent, db):
         self.parent = parent

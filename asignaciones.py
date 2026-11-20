@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk, messagebox
 from datetime import datetime
-
+-
 class GestionAsignaciones:
     def __init__(self, parent, db):
         self.parent = parent
