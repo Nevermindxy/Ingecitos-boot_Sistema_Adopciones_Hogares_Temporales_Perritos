@@ -45,7 +45,6 @@
  * **Fecha:** [19/11/2026]
 * **Objetivo:** Migracion de datos a programacion modular
 * * **Actividades realizadas:**
-<<<<<<< HEAD
 * Se realizó la migración del código base hacia un enfoque modular, separando las interfaces y la lógica de base de datos en distintos módulos independientes.
 * Se distribuyó el desarrollo de forma equitativa, donde *cada integrante del equipo se encargó de programar e implementar 2 archivos* específicos del sistema.
 * Se adicionaron e integraron los siguientes archivos al proyecto:
@@ -74,4 +73,4 @@
   * Se incorporó un selector visual de calendario en el formulario de `perritos.py` para facilitar la selección de fechas en un formato estandarizado compatible con MySQL.
   * Se implementaron reglas de validación de datos en `perritos.py` para verificar campos obligatorios, formatos de texto, rangos numéricos válidos (edad) y evitar la inserción de registros vacíos o erróneos.
   * Se realizaron pruebas de registro y actualización en la interfaz gráfica comprobando que los datos validados y las fechas seleccionadas se almacenen correctamente en la base de datos
->>>>>>> 6e4b6bfb853bcc685026abfc8f09c75d51dff39a
+
