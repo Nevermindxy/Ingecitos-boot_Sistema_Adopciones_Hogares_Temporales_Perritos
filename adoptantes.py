@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk, messagebox
+from validaciones import validar_requeridos, validar_solo_letras, validar_telefono, validar_correo
 
 class GestionAdoptantes:
     def __init__(self, parent, db):
@@ -9,47 +10,58 @@ class GestionAdoptantes:
         self.cargar_datos()
 
     def crear_widgets(self):
-        Label(self.parent, text="Registro de Adoptantes", font=("Arial", 16, "bold")).pack(pady=10)
+        ttk.Label(self.parent, text="Registro de Adoptantes", style="Titulo.TLabel").pack(pady=10)
 
-        izq = Frame(self.parent)
-        izq.place(x=20, y=50)
+        contenedor = ttk.Frame(self.parent)
+        contenedor.pack(fill="both", expand=True, padx=20, pady=10)
 
-        Label(izq, text="Nombre:*").grid(row=0, column=0, sticky="w")
-        self.nombre = Entry(izq, width=28)
+        izq = ttk.Frame(contenedor)
+        izq.pack(side="left", fill="y", padx=(0, 20))
+
+        ttk.Label(izq, text="Nombre:*").grid(row=0, column=0, sticky="w", pady=4)
+        self.nombre = ttk.Entry(izq, width=28)
         self.nombre.grid(row=0, column=1, pady=4)
 
-        Label(izq, text="Apellido:*").grid(row=1, column=0, sticky="w")
-        self.apellido = Entry(izq, width=28)
+        ttk.Label(izq, text="Apellido:*").grid(row=1, column=0, sticky="w", pady=4)
+        self.apellido = ttk.Entry(izq, width=28)
         self.apellido.grid(row=1, column=1, pady=4)
 
-        Label(izq, text="Teléfono:*").grid(row=2, column=0, sticky="w")
-        self.telefono = Entry(izq, width=28)
+        ttk.Label(izq, text="Teléfono:*").grid(row=2, column=0, sticky="w", pady=4)
+        self.telefono = ttk.Entry(izq, width=28)
         self.telefono.grid(row=2, column=1, pady=4)
 
-        Label(izq, text="Dirección:*").grid(row=3, column=0, sticky="w")
-        self.direccion = Entry(izq, width=28)
+        ttk.Label(izq, text="Dirección:*").grid(row=3, column=0, sticky="w", pady=4)
+        self.direccion = ttk.Entry(izq, width=28)
         self.direccion.grid(row=3, column=1, pady=4)
 
-        Label(izq, text="Correo:").grid(row=4, column=0, sticky="w")
-        self.correo = Entry(izq, width=28)
+        ttk.Label(izq, text="Correo:").grid(row=4, column=0, sticky="w", pady=4)
+        self.correo = ttk.Entry(izq, width=28)
         self.correo.grid(row=4, column=1, pady=4)
 
-        Button(izq, text="Añadir", width=15, command=self.anadir).grid(row=6, column=0, pady=15)
-        Button(izq, text="Actualizar", width=15, command=self.actualizar).grid(row=6, column=1)
-        Button(izq, text="Eliminar", width=15, command=self.eliminar).grid(row=7, column=0)
-        Button(izq, text="Limpiar", width=15, command=self.limpiar).grid(row=7, column=1)
+        frame_btn = ttk.Frame(izq)
+        frame_btn.grid(row=5, column=0, columnspan=2, pady=15)
 
-        self.tabla = ttk.Treeview(self.parent, columns=("id", "nombre", "apellido", "telefono"), show="headings", height=12)
-        self.tabla.heading("id", text="ID")
-        self.tabla.heading("nombre", text="Nombre")
-        self.tabla.heading("apellido", text="Apellido")
-        self.tabla.heading("telefono", text="Teléfono")
+        ttk.Button(frame_btn, text="Añadir", style="Exito.TButton", width=13, command=self.anadir).grid(row=0, column=0, padx=5, pady=5)
+        ttk.Button(frame_btn, text="Actualizar", style="Primario.TButton", width=13, command=self.actualizar).grid(row=0, column=1, padx=5, pady=5)
+        ttk.Button(frame_btn, text="Eliminar", style="Peligro.TButton", width=13, command=self.eliminar).grid(row=1, column=0, padx=5, pady=5)
+        ttk.Button(frame_btn, text="Limpiar", style="Primario.TButton", width=13, command=self.limpiar).grid(row=1, column=1, padx=5, pady=5)
 
-        self.tabla.column("id", width=40)
-        self.tabla.column("nombre", width=110)
-        self.tabla.column("apellido", width=110)
-        self.tabla.column("telefono", width=100)
-        self.tabla.place(x=430, y=50)
+        der = ttk.Frame(contenedor)
+        der.pack(side="left", fill="both", expand=True)
+
+        scroll = ttk.Scrollbar(der)
+        scroll.pack(side="right", fill="y")
+
+        self.tabla = ttk.Treeview(der, columns=("id", "nombre", "apellido", "telefono"), show="headings", yscrollcommand=scroll.set)
+        scroll.config(command=self.tabla.yview)
+
+        for col, texto, ancho in [("id", "ID", 45), ("nombre", "Nombre", 120), ("apellido", "Apellido", 120), ("telefono", "Teléfono", 110)]:
+            self.tabla.heading(col, text=texto)
+            self.tabla.column(col, width=ancho, anchor="center")
+
+        self.tabla.tag_configure("par", background="#EDF2F7")
+        self.tabla.tag_configure("impar", background="#FFFFFF")
+        self.tabla.pack(fill="both", expand=True)
         self.tabla.bind("<<TreeviewSelect>>", self.seleccionar_fila)
 
     def validar_campos(self):
@@ -57,18 +69,27 @@ class GestionAdoptantes:
         ape = self.apellido.get().strip()
         tel = self.telefono.get().strip()
         dir_txt = self.direccion.get().strip()
-        cor = self.correo.get().strip() 
+        cor = self.correo.get().strip()
 
-        if not nom or not ape or not tel or not dir_txt:
-            messagebox.showwarning("Faltan datos", "Nombre, apellido, teléfono y dirección son obligatorios.")
+        ok, msg = validar_requeridos({"Nombre": nom, "Apellido": ape, "Teléfono": tel, "Dirección": dir_txt})
+        if not ok:
+            messagebox.showwarning("Faltan datos", msg)
             return None
-            
-        if not tel.isdigit() or len(tel) < 7:
-            messagebox.showerror("Teléfono inválido", "El teléfono debe contener solo números (mínimo 7 dígitos).")
+
+        for campo, val in [("Nombre", nom), ("Apellido", ape)]:
+            ok, msg = validar_solo_letras(val, campo)
+            if not ok:
+                messagebox.showerror("Dato inválido", msg)
+                return None
+
+        ok, msg = validar_telefono(tel)
+        if not ok:
+            messagebox.showerror("Teléfono inválido", msg)
             return None
-            
-        if cor and ("@" not in cor or "." not in cor):
-            messagebox.showerror("Correo inválido", "Ingresa un correo electrónico válido.")
+
+        ok, msg = validar_correo(cor)
+        if not ok:
+            messagebox.showerror("Correo inválido", msg)
             return None
 
         return (nom, ape, tel, dir_txt, cor)
@@ -78,15 +99,17 @@ class GestionAdoptantes:
             self.tabla.delete(fila)
         cursor = self.db.ejecutar("SELECT id_adoptante, nombre, apellido, telefono FROM adoptante")
         if cursor:
-            for reg in cursor.fetchall():
-                self.tabla.insert("", END, values=reg)
+            for i, reg in enumerate(cursor.fetchall()):
+                tag = "par" if i % 2 == 0 else "impar"
+                self.tabla.insert("", END, values=reg, tags=(tag,))
 
     def seleccionar_fila(self, event):
         sel = self.tabla.selection()
-        if not sel: return
+        if not sel:
+            return
         id_a = self.tabla.item(sel[0], "values")[0]
         cursor = self.db.ejecutar("SELECT nombre, apellido, telefono, direccion, correo FROM adoptante WHERE id_adoptante=%s", (id_a,))
-        datos = cursor.fetchone()
+        datos = cursor.fetchone() if cursor else None
         if datos:
             self.limpiar()
             self.nombre.insert(0, datos[0])
@@ -97,38 +120,42 @@ class GestionAdoptantes:
 
     def anadir(self):
         vals = self.validar_campos()
-        if not vals: return
+        if not vals:
+            return
         sql = "INSERT INTO adoptante (nombre, apellido, telefono, direccion, correo) VALUES (%s,%s,%s,%s,%s)"
         if self.db.ejecutar(sql, vals):
             self.db.commit()
             self.cargar_datos()
             self.limpiar()
-            messagebox.showinfo("Éxito", "Adoptante registrado")
+            messagebox.showinfo("Éxito", "Adoptante registrado.")
 
     def actualizar(self):
         sel = self.tabla.selection()
         if not sel:
-            messagebox.showwarning("Atención", "Selecciona un adoptante")
+            messagebox.showwarning("Atención", "Selecciona un adoptante.")
             return
         vals = self.validar_campos()
-        if not vals: return
+        if not vals:
+            return
         id_a = self.tabla.item(sel[0], "values")[0]
         sql = "UPDATE adoptante SET nombre=%s, apellido=%s, telefono=%s, direccion=%s, correo=%s WHERE id_adoptante=%s"
         if self.db.ejecutar(sql, vals + (id_a,)):
             self.db.commit()
             self.cargar_datos()
             self.limpiar()
-            messagebox.showinfo("Éxito", "Adoptante actualizado")
+            messagebox.showinfo("Éxito", "Adoptante actualizado.")
 
     def eliminar(self):
-        sel = self.tabla.selection()
+        sel=self.tabla.selection()
         if not sel: return
-        if messagebox.askyesno("Confirmar", "¿Eliminar adoptante?"):
-            id_a = self.tabla.item(sel[0], "values")[0]
-            self.db.ejecutar("DELETE FROM adoptante WHERE id_adoptante=%s", (id_a,))
-            self.db.commit()
-            self.cargar_datos()
-            self.limpiar()
+        ident=self.tabla.item(sel[0], 'values')[0]
+        c=self.db.ejecutar("SELECT COUNT(*) FROM adopcion WHERE id_adoptante=%s",(ident,))
+        if not c or c.fetchone()[0]:
+            messagebox.showwarning('Historial protegido','No se puede eliminar un registro con historial.')
+            return
+        if messagebox.askyesno('Confirmar','¿Eliminar registro?'):
+            if self.db.ejecutar('DELETE FROM adoptante WHERE id_adoptante=%s',(ident,)):
+                self.cargar_datos(); self.limpiar()
 
     def limpiar(self):
         self.nombre.delete(0, END)

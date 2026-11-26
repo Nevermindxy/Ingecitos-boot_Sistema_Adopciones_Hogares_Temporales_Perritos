@@ -1,59 +1,41 @@
-from tkinter import *
-from tkinter import ttk
-from conexion import ConexionBD
+
+from tkinter import Tk, ttk
+from conexion import ConexionDB
+from estilos import aplicar_estilos
 from login import Login
+from inicio import Inicio
 from perritos import GestionPerritos
 from adoptantes import GestionAdoptantes
 from hogares import GestionHogares
-from adopciones import GestionAdopciones
 from asignaciones import GestionAsignaciones
+from adopciones import GestionAdopciones
 from reportes import GestionReportes
 
-class Aplicacion:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Sistema Huellitas - Registro y Control de Adopciones")
-        self.root.geometry("900x500")
-        self.root.eval('tk::PlaceWindow . center')
-
-        self.db = ConexionBD()
-
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill="both", expand=True)
-
-        self.tab_perritos = Frame(self.notebook)
-        self.tab_adoptantes = Frame(self.notebook)
-        self.tab_hogares = Frame(self.notebook)
-        self.tab_adopciones = Frame(self.notebook)
-        self.tab_asignaciones = Frame(self.notebook)
-        self.tab_reportes = Frame(self.notebook)
-
-        self.notebook.add(self.tab_perritos, text="🐾 Perritos")
-        self.notebook.add(self.tab_adoptantes, text="👤 Adoptantes")
-        self.notebook.add(self.tab_hogares, text="🏠 Hogares")
-        self.notebook.add(self.tab_adopciones, text="❤️ Adopciones")
-        self.notebook.add(self.tab_asignaciones, text="📋 Asignaciones")
-        self.notebook.add(self.tab_reportes, text="📊 Reportes")
-
-        self.modulo_perritos = GestionPerritos(self.tab_perritos, self.db)
-        self.modulo_adoptantes = GestionAdoptantes(self.tab_adoptantes, self.db)
-        self.modulo_hogares = GestionHogares(self.tab_hogares, self.db)
-        self.modulo_adopciones = GestionAdopciones(self.tab_adopciones, self.db)
-        self.modulo_asignaciones = GestionAsignaciones(self.tab_asignaciones, self.db)
-        self.modulo_reportes = GestionReportes(self.tab_reportes, self.db)
-
-        self.root.protocol("WM_DELETE_WINDOW", self.cerrar_app)
-
-    def cerrar_app(self):
-        self.db.cerrar()
-        self.root.destroy()
-
-def iniciar_sistema():
-    ventana_principal = Tk()
-    app = Aplicacion(ventana_principal)
-    ventana_principal.mainloop()
-
-if __name__ == "__main__":
-    ventana_login = Tk()
-    app_login = Login(ventana_login, iniciar_sistema)
-    ventana_login.mainloop()
+def main():
+    root=Tk(); aplicar_estilos(root)
+    def limpiar():
+        for w in root.winfo_children(): w.destroy()
+        root.unbind('<Return>')
+    def login():
+        limpiar(); Login(root,abrir_sistema)
+    def abrir_sistema():
+        limpiar(); root.resizable(True,True); root.title('Huellitas · Gestión de Albergue'); root.geometry('1150x650'); root.minsize(980,540)
+        db=ConexionDB()
+        if not db.conn: root.destroy(); return
+        barra=ttk.Frame(root); barra.pack(fill='x',padx=15,pady=8)
+        ttk.Label(barra,text='HUELLITAS  |  Sistema de gestión',style='Titulo.TLabel').pack(side='left')
+        def salir():
+            db.cerrar(); root.minsize(1,1); login(); root.protocol('WM_DELETE_WINDOW',root.destroy)
+        ttk.Button(barra,text='Cerrar sesión',command=salir).pack(side='right')
+        notebook=ttk.Notebook(root); notebook.pack(fill='both',expand=True,padx=10,pady=10)
+        pantallas={}
+        for nombre,clase in [('Inicio',Inicio),('Perritos',GestionPerritos),('Adoptantes',GestionAdoptantes),('Hogares Temporales',GestionHogares),('Asignaciones',GestionAsignaciones),('Adopciones',GestionAdopciones),('Reportes',GestionReportes)]:
+            tab=ttk.Frame(notebook); notebook.add(tab,text=nombre); pantallas[str(tab)]=clase(tab,db)
+        def refrescar(event=None):
+            pantalla=pantallas.get(notebook.select())
+            if hasattr(pantalla,'cargar_combos'): pantalla.cargar_combos()
+            if hasattr(pantalla,'cargar_datos'): pantalla.cargar_datos()
+        notebook.bind('<<NotebookTabChanged>>',refrescar)
+        root.protocol('WM_DELETE_WINDOW',lambda:(db.cerrar(),root.destroy()))
+    login(); root.mainloop()
+if __name__=='__main__': main()

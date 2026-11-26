@@ -1,34 +1,55 @@
 import mysql.connector
 from tkinter import messagebox
+from contextlib import contextmanager
 
-class ConexionBD:
+
+class ConexionDB:
     def __init__(self):
+        self.conn = None
+        self.cursor = None
+
         try:
-            self.conexion = mysql.connector.connect(
+            self.conn = mysql.connector.connect(
                 host="localhost",
+                port=3306,
                 user="root",
                 password="",
-                database="sistema_perritos"
+                database="sistema_perritos",
+                autocommit=True
             )
-            self.cursor = self.conexion.cursor()
-        except mysql.connector.Error as err:
-            messagebox.showerror("Error de Conexión", f"No se pudo conectar a MySQL:\n{err}")
-            exit()
 
-    def ejecutar(self, sql, valores=None):
-        try:
-            if valores:
-                self.cursor.execute(sql, valores)
-            else:
-                self.cursor.execute(sql)
-            return self.cursor
+            self.cursor = self.conn.cursor(buffered=True)
+
         except mysql.connector.Error as err:
-            messagebox.showerror("Error SQL", f"Ha ocurrido un error:\n{err}")
+            messagebox.showerror("Error de conexión", str(err))
+
+    def ejecutar(self, sql, params=None):
+        try:
+            self.cursor.execute(sql, params or ())
+            return self.cursor
+
+        except mysql.connector.Error as err:
+            messagebox.showerror("Error SQL", str(err))
             return None
 
+    @contextmanager
+    def transaccion(self):
+        self.conn.start_transaction()
+
+        try:
+            yield self.cursor
+            self.conn.commit()
+
+        except BaseException:
+            self.conn.rollback()
+            raise
+
     def commit(self):
-        self.conexion.commit()
+        self.conn.commit()
 
     def cerrar(self):
-        self.cursor.close()
-        self.conexion.close()
+        if self.cursor:
+            self.cursor.close()
+
+        if self.conn:
+            self.conn.close()

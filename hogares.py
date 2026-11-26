@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk, messagebox
+from validaciones import validar_requeridos, validar_solo_letras, validar_telefono, validar_entero_rango
 
 class GestionHogares:
     def __init__(self, parent, db):
@@ -9,65 +10,80 @@ class GestionHogares:
         self.cargar_datos()
 
     def crear_widgets(self):
-        Label(self.parent, text="Registro de Hogares Temporales", font=("Arial", 16, "bold")).pack(pady=10)
+        ttk.Label(self.parent, text="Registro de Hogares Temporales", style="Titulo.TLabel").pack(pady=10)
 
-        izq = Frame(self.parent)
-        izq.place(x=20, y=50)
+        contenedor = ttk.Frame(self.parent)
+        contenedor.pack(fill="both", expand=True, padx=20, pady=10)
 
-        Label(izq, text="Responsable:*").grid(row=0, column=0, sticky="w")
-        self.responsable = Entry(izq, width=28)
+        izq = ttk.Frame(contenedor)
+        izq.pack(side="left", fill="y", padx=(0, 20))
+
+        ttk.Label(izq, text="Responsable:*").grid(row=0, column=0, sticky="w", pady=4)
+        self.responsable = ttk.Entry(izq, width=28)
         self.responsable.grid(row=0, column=1, pady=4)
 
-        Label(izq, text="Teléfono:*").grid(row=1, column=0, sticky="w")
-        self.telefono = Entry(izq, width=28)
+        ttk.Label(izq, text="Teléfono:*").grid(row=1, column=0, sticky="w", pady=4)
+        self.telefono = ttk.Entry(izq, width=28)
         self.telefono.grid(row=1, column=1, pady=4)
 
-        Label(izq, text="Dirección:*").grid(row=2, column=0, sticky="w")
-        self.direccion = Entry(izq, width=28)
+        ttk.Label(izq, text="Dirección:*").grid(row=2, column=0, sticky="w", pady=4)
+        self.direccion = ttk.Entry(izq, width=28)
         self.direccion.grid(row=2, column=1, pady=4)
 
-        Label(izq, text="Capacidad (perros):*").grid(row=3, column=0, sticky="w")
-        self.capacidad = Entry(izq, width=28)
+        ttk.Label(izq, text="Capacidad (perros):*").grid(row=3, column=0, sticky="w", pady=4)
+        self.capacidad = ttk.Entry(izq, width=28)
         self.capacidad.grid(row=3, column=1, pady=4)
 
-        Button(izq, text="Añadir", width=15, command=self.anadir).grid(row=5, column=0, pady=15)
-        Button(izq, text="Actualizar", width=15, command=self.actualizar).grid(row=5, column=1)
-        Button(izq, text="Eliminar", width=15, command=self.eliminar).grid(row=6, column=0)
-        Button(izq, text="Limpiar", width=15, command=self.limpiar).grid(row=6, column=1)
+        frame_btn = ttk.Frame(izq)
+        frame_btn.grid(row=4, column=0, columnspan=2, pady=15)
 
-        self.tabla = ttk.Treeview(self.parent, columns=("id", "resp", "tel", "cap"), show="headings", height=12)
-        self.tabla.heading("id", text="ID")
-        self.tabla.heading("resp", text="Responsable")
-        self.tabla.heading("tel", text="Teléfono")
-        self.tabla.heading("cap", text="Capacidad")
+        ttk.Button(frame_btn, text="Añadir", style="Exito.TButton", width=13, command=self.anadir).grid(row=0, column=0, padx=5, pady=5)
+        ttk.Button(frame_btn, text="Actualizar", style="Primario.TButton", width=13, command=self.actualizar).grid(row=0, column=1, padx=5, pady=5)
+        ttk.Button(frame_btn, text="Eliminar", style="Peligro.TButton", width=13, command=self.eliminar).grid(row=1, column=0, padx=5, pady=5)
+        ttk.Button(frame_btn, text="Limpiar", style="Primario.TButton", width=13, command=self.limpiar).grid(row=1, column=1, padx=5, pady=5)
 
-        self.tabla.column("id", width=40)
-        self.tabla.column("resp", width=140)
-        self.tabla.column("tel", width=100)
-        self.tabla.column("cap", width=80)
-        self.tabla.place(x=430, y=50)
+        der = ttk.Frame(contenedor)
+        der.pack(side="left", fill="both", expand=True)
+
+        scroll = ttk.Scrollbar(der)
+        scroll.pack(side="right", fill="y")
+
+        self.tabla = ttk.Treeview(der, columns=("id", "resp", "tel", "cap", "libres"), show="headings", yscrollcommand=scroll.set)
+        scroll.config(command=self.tabla.yview)
+
+        for col, texto, ancho in [("id", "ID", 45), ("resp", "Responsable", 150), ("tel", "Teléfono", 110), ("cap", "Capacidad", 80), ("libres", "Libres", 65)]:
+            self.tabla.heading(col, text=texto)
+            self.tabla.column(col, width=ancho, anchor="center")
+
+        self.tabla.tag_configure("par", background="#EDF2F7")
+        self.tabla.tag_configure("impar", background="#FFFFFF")
+        self.tabla.pack(fill="both", expand=True)
         self.tabla.bind("<<TreeviewSelect>>", self.seleccionar_fila)
 
     def validar_campos(self):
         resp = self.responsable.get().strip()
         tel = self.telefono.get().strip()
         dir_txt = self.direccion.get().strip()
+        cap_txt = self.capacidad.get().strip()
 
-        if not resp or not tel or not dir_txt:
-            messagebox.showwarning("Faltan datos", "Nombre, teléfono y dirección son obligatorios.")
+        ok, msg = validar_requeridos({"Responsable": resp, "Teléfono": tel, "Dirección": dir_txt, "Capacidad": cap_txt})
+        if not ok:
+            messagebox.showwarning("Faltan datos", msg)
             return None
-            
-        if not tel.isdigit() or len(tel) < 7:
-            messagebox.showerror("Teléfono inválido", "El teléfono debe contener solo números (mínimo 7 dígitos).")
+
+        ok, msg = validar_solo_letras(resp, "Responsable")
+        if not ok:
+            messagebox.showerror("Dato inválido", msg)
             return None
-            
-        try:
-            cap = int(self.capacidad.get().strip())
-            if cap <= 0:
-                messagebox.showerror("Capacidad inválida", "La capacidad debe ser mayor a 0.")
-                return None
-        except ValueError:
-            messagebox.showerror("Error", "La capacidad debe ser un número entero y no estar vacía.")
+
+        ok, msg = validar_telefono(tel)
+        if not ok:
+            messagebox.showerror("Teléfono inválido", msg)
+            return None
+
+        ok, cap = validar_entero_rango(cap_txt, "Capacidad", 1, 50)
+        if not ok:
+            messagebox.showerror("Capacidad inválida", cap)
             return None
 
         return (resp, tel, dir_txt, cap)
@@ -75,17 +91,19 @@ class GestionHogares:
     def cargar_datos(self):
         for fila in self.tabla.get_children():
             self.tabla.delete(fila)
-        cursor = self.db.ejecutar("SELECT id_hogar, nombre_responsable, telefono, capacidad FROM hogar_temporal")
+        cursor = self.db.ejecutar("SELECT h.id_hogar, h.nombre_responsable, h.telefono, h.capacidad, h.capacidad-(SELECT COUNT(*) FROM asignacion_temporal a WHERE a.id_hogar=h.id_hogar AND a.finalizada=0) FROM hogar_temporal h")
         if cursor:
-            for reg in cursor.fetchall():
-                self.tabla.insert("", END, values=reg)
+            for i, reg in enumerate(cursor.fetchall()):
+                tag = "par" if i % 2 == 0 else "impar"
+                self.tabla.insert("", END, values=reg, tags=(tag,))
 
     def seleccionar_fila(self, event):
         sel = self.tabla.selection()
-        if not sel: return
+        if not sel:
+            return
         id_h = self.tabla.item(sel[0], "values")[0]
         cursor = self.db.ejecutar("SELECT nombre_responsable, telefono, direccion, capacidad FROM hogar_temporal WHERE id_hogar=%s", (id_h,))
-        datos = cursor.fetchone()
+        datos = cursor.fetchone() if cursor else None
         if datos:
             self.limpiar()
             self.responsable.insert(0, datos[0])
@@ -95,38 +113,46 @@ class GestionHogares:
 
     def anadir(self):
         vals = self.validar_campos()
-        if not vals: return
+        if not vals:
+            return
         sql = "INSERT INTO hogar_temporal (nombre_responsable, telefono, direccion, capacidad) VALUES (%s,%s,%s,%s)"
         if self.db.ejecutar(sql, vals):
             self.db.commit()
             self.cargar_datos()
             self.limpiar()
-            messagebox.showinfo("Éxito", "Hogar temporal registrado")
+            messagebox.showinfo("Éxito", "Hogar temporal registrado.")
 
     def actualizar(self):
         sel = self.tabla.selection()
         if not sel:
-            messagebox.showwarning("Atención", "Selecciona un hogar")
+            messagebox.showwarning("Atención", "Selecciona un hogar.")
             return
         vals = self.validar_campos()
-        if not vals: return
+        if not vals:
+            return
         id_h = self.tabla.item(sel[0], "values")[0]
+        c = self.db.ejecutar("SELECT COUNT(*) FROM asignacion_temporal WHERE id_hogar=%s AND finalizada=0", (id_h,))
+        if not c or c.fetchone()[0] > vals[3]:
+            messagebox.showwarning("Capacidad", "La capacidad no puede ser menor a la ocupación actual.")
+            return
         sql = "UPDATE hogar_temporal SET nombre_responsable=%s, telefono=%s, direccion=%s, capacidad=%s WHERE id_hogar=%s"
         if self.db.ejecutar(sql, vals + (id_h,)):
             self.db.commit()
             self.cargar_datos()
             self.limpiar()
-            messagebox.showinfo("Éxito", "Hogar actualizado")
+            messagebox.showinfo("Éxito", "Hogar actualizado.")
 
     def eliminar(self):
-        sel = self.tabla.selection()
+        sel=self.tabla.selection()
         if not sel: return
-        if messagebox.askyesno("Confirmar", "¿Eliminar hogar temporal?"):
-            id_h = self.tabla.item(sel[0], "values")[0]
-            self.db.ejecutar("DELETE FROM hogar_temporal WHERE id_hogar=%s", (id_h,))
-            self.db.commit()
-            self.cargar_datos()
-            self.limpiar()
+        ident=self.tabla.item(sel[0], 'values')[0]
+        c=self.db.ejecutar("SELECT COUNT(*) FROM asignacion_temporal WHERE id_hogar=%s",(ident,))
+        if not c or c.fetchone()[0]:
+            messagebox.showwarning('Historial protegido','No se puede eliminar un registro con historial.')
+            return
+        if messagebox.askyesno('Confirmar','¿Eliminar registro?'):
+            if self.db.ejecutar('DELETE FROM hogar_temporal WHERE id_hogar=%s',(ident,)):
+                self.cargar_datos(); self.limpiar()
 
     def limpiar(self):
         self.responsable.delete(0, END)

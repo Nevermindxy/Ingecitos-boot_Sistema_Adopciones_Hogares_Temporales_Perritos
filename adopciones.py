@@ -1,122 +1,123 @@
 from tkinter import *
 from tkinter import ttk, messagebox
 from datetime import datetime
+from tkcalendar import DateEntry
+from operaciones import adoptar
+from validaciones import validar_requeridos
 
 class GestionAdopciones:
     def __init__(self, parent, db):
         self.parent = parent
         self.db = db
-        self.mapa_perros = {}
-        self.mapa_adoptantes = {}
         self.crear_widgets()
         self.cargar_combos()
         self.cargar_datos()
 
     def crear_widgets(self):
-        Label(self.parent, text="Control de Adopciones", font=("Arial", 16, "bold")).pack(pady=10)
+        ttk.Label(self.parent, text="Registro de Adopciones", style="Titulo.TLabel").pack(pady=10)
 
-        izq = Frame(self.parent)
-        izq.place(x=20, y=50)
+        contenedor = ttk.Frame(self.parent)
+        contenedor.pack(fill="both", expand=True, padx=20, pady=10)
 
-        Label(izq, text="Perrito:").grid(row=0, column=0, sticky="w")
-        self.combo_perro = ttk.Combobox(izq, width=25, state="readonly")
-        self.combo_perro.grid(row=0, column=1, pady=4)
+        izq = ttk.Frame(contenedor)
+        izq.pack(side="left", fill="y", padx=(0, 20))
 
-        Label(izq, text="Adoptante:").grid(row=1, column=0, sticky="w")
-        self.combo_adoptante = ttk.Combobox(izq, width=25, state="readonly")
-        self.combo_adoptante.grid(row=1, column=1, pady=4)
+        ttk.Label(izq, text="Perrito:*").grid(row=0, column=0, sticky="w", pady=4)
+        self.cb_perro = ttk.Combobox(izq, width=25, state="readonly")
+        self.cb_perro.grid(row=0, column=1, pady=4)
 
-        Label(izq, text="Fecha (AAAA-MM-DD):").grid(row=2, column=0, sticky="w")
-        self.fecha = Entry(izq, width=28)
-        self.fecha.grid(row=2, column=1, pady=4)
+        ttk.Label(izq, text="Adoptante:*").grid(row=1, column=0, sticky="w", pady=4)
+        self.cb_adoptante = ttk.Combobox(izq, width=25, state="readonly")
+        self.cb_adoptante.grid(row=1, column=1, pady=4)
 
-        Label(izq, text="Observaciones:").grid(row=3, column=0, sticky="w")
-        self.obs = Entry(izq, width=28)
-        self.obs.grid(row=3, column=1, pady=4)
+        ttk.Label(izq, text="Fecha Adopción:*").grid(row=2, column=0, sticky="w", pady=4)
+        self.fecha_adopcion = DateEntry(
+            izq,
+            width=25,
+            background="#2B6CB0",
+            foreground="white",
+            borderwidth=2,
+            date_pattern="yyyy-mm-dd",
+            state="readonly"
+        )
+        self.fecha_adopcion.grid(row=2, column=1, pady=4)
 
-        Button(izq, text="Registrar Adopción", width=16, command=self.registrar).grid(row=5, column=0, pady=15)
-        Button(izq, text="Actualizar Listas", width=16, command=self.cargar_combos).grid(row=5, column=1)
-        Button(izq, text="Eliminar Registro", width=16, command=self.eliminar).grid(row=6, column=0)
+        frame_btn = ttk.Frame(izq)
+        ttk.Label(izq,text="Observaciones:").grid(row=3,column=0)
+        self.observaciones=ttk.Entry(izq,width=25)
+        self.observaciones.grid(row=3,column=1)
+        frame_btn.grid(row=4, column=0, columnspan=2, pady=15)
 
-        self.tabla = ttk.Treeview(self.parent, columns=("id", "perro", "adoptante", "fecha"), show="headings", height=12)
-        self.tabla.heading("id", text="ID")
-        self.tabla.heading("perro", text="Perrito")
-        self.tabla.heading("adoptante", text="Adoptante")
-        self.tabla.heading("fecha", text="Fecha")
+        ttk.Button(frame_btn, text="Registrar", style="Exito.TButton", width=13, command=self.anadir).grid(row=0, column=0, padx=5, pady=5)
+        ttk.Button(frame_btn, text="Fecha protegida", style="Primario.TButton", width=13, command=self.actualizar).grid(row=0, column=1, padx=5, pady=5)
+        ttk.Button(frame_btn, text="Historial", style="Peligro.TButton", width=13, command=self.eliminar).grid(row=1, column=0, padx=5, pady=5)
+        ttk.Button(frame_btn, text="Refrescar Listas", style="Primario.TButton", width=13, command=self.cargar_combos).grid(row=1, column=1, padx=5, pady=5)
 
-        self.tabla.column("id", width=40)
-        self.tabla.column("perro", width=110)
-        self.tabla.column("adoptante", width=130)
-        self.tabla.column("fecha", width=90)
-        self.tabla.place(x=430, y=50)
+        der = ttk.Frame(contenedor)
+        der.pack(side="left", fill="both", expand=True)
+
+        scroll = ttk.Scrollbar(der)
+        scroll.pack(side="right", fill="y")
+
+        self.tabla = ttk.Treeview(der, columns=("id", "perro", "adoptante", "fecha"), show="headings", yscrollcommand=scroll.set)
+        scroll.config(command=self.tabla.yview)
+
+        for col, texto, ancho in [("id", "ID", 45), ("perro", "Perrito", 120), ("adoptante", "Adoptante", 160), ("fecha", "Fecha Adopción", 110)]:
+            self.tabla.heading(col, text=texto)
+            self.tabla.column(col, width=ancho, anchor="center")
+
+        self.tabla.tag_configure("par", background="#EDF2F7")
+        self.tabla.tag_configure("impar", background="#FFFFFF")
+        self.tabla.pack(fill="both", expand=True)
+        self.tabla.bind("<<TreeviewSelect>>", self.seleccionar_fila)
 
     def cargar_combos(self):
-        self.mapa_perros.clear()
-        cursor = self.db.ejecutar("SELECT id_perro, nombre FROM perro WHERE estado != 'Adoptado' OR estado IS NULL")
-        lista_p = []
-        if cursor:
-            for id_p, nom in cursor.fetchall():
-                texto = f"{id_p} - {nom}"
-                self.mapa_perros[texto] = id_p
-                lista_p.append(texto)
-        self.combo_perro["values"] = lista_p
+        c_p = self.db.ejecutar("SELECT id_perro, nombre FROM perro WHERE estado != 'Adoptado'")
+        self.cb_perro["values"] = [f"{r[0]} - {r[1]}" for r in c_p.fetchall()] if c_p else []
 
-        self.mapa_adoptantes.clear()
-        cursor = self.db.ejecutar("SELECT id_adoptante, nombre, apellido FROM adoptante")
-        lista_a = []
-        if cursor:
-            for id_a, nom, ape in cursor.fetchall():
-                texto = f"{id_a} - {nom} {ape}"
-                self.mapa_adoptantes[texto] = id_a
-                lista_a.append(texto)
-        self.combo_adoptante["values"] = lista_a
+        c_a = self.db.ejecutar("SELECT id_adoptante, CONCAT(nombre, ' ', apellido) FROM adoptante")
+        self.cb_adoptante["values"] = [f"{r[0]} - {r[1]}" for r in c_a.fetchall()] if c_a else []
 
     def cargar_datos(self):
         for fila in self.tabla.get_children():
             self.tabla.delete(fila)
-        sql = """SELECT a.id_adopcion, p.nombre, CONCAT(ad.nombre, ' ', ad.apellido), a.fecha_adopcion FROM adopcion a JOIN perro p ON a.id_perro = p.id_perro JOIN adoptante ad ON a.id_adoptante = ad.id_adoptante"""
+        sql = """
+            SELECT a.id_adopcion, p.nombre, CONCAT(ad.nombre, ' ', ad.apellido), a.fecha_adopcion
+            FROM adopcion a
+            JOIN perro p ON a.id_perro = p.id_perro
+            JOIN adoptante ad ON a.id_adoptante = ad.id_adoptante
+            ORDER BY a.fecha_adopcion DESC
+        """
         cursor = self.db.ejecutar(sql)
         if cursor:
-            for reg in cursor.fetchall():
-                self.tabla.insert("", END, values=reg)
+            for i, reg in enumerate(cursor.fetchall()):
+                tag = "par" if i % 2 == 0 else "impar"
+                self.tabla.insert("", END, values=reg, tags=(tag,))
 
-    def registrar(self):
-        p_txt = self.combo_perro.get()
-        a_txt = self.combo_adoptante.get()
-        if not p_txt or not a_txt:
-            messagebox.showwarning("Faltan datos", "Selecciona un perrito y un adoptante.")
+    def seleccionar_fila(self, event):
+        sel = self.tabla.selection()
+        if not sel:
             return
+        fecha_val = self.tabla.item(sel[0], "values")[3]
+        if fecha_val:
+            self.fecha_adopcion.set_date(fecha_val)
 
-        fecha_txt = self.fecha.get().strip()
-        if not fecha_txt:
-            messagebox.showwarning("Falta fecha", "Ingresa la fecha de adopción (AAAA-MM-DD).")
-            return
+    def anadir(self):
         try:
-            datetime.strptime(fecha_txt, "%Y-%m-%d")
-        except ValueError:
-            messagebox.showerror("Fecha inválida", "Usa el formato AAAA-MM-DD (ej. 2026-11-19).")
-            return
+            adoptar(self.db, int(self.cb_perro.get().split(' - ')[0]), int(self.cb_adoptante.get().split(' - ')[0]), self.fecha_adopcion.get(), self.observaciones.get())
+        except Exception as e:
+            messagebox.showerror('No se pudo registrar', str(e)); return
+        self.cargar_datos(); self.cargar_combos(); self.limpiar()
+        messagebox.showinfo('Éxito','Adopción registrada.')
 
-        id_p = self.mapa_perros[p_txt]
-        id_a = self.mapa_adoptantes[a_txt]
-
-        sql = "INSERT INTO adopcion (id_perro, id_adoptante, fecha_adopcion, observaciones) VALUES (%s,%s,%s,%s)"
-        if self.db.ejecutar(sql, (id_p, id_a, fecha_txt, self.obs.get().strip())):
-            self.db.ejecutar("UPDATE perro SET estado='Adoptado' WHERE id_perro=%s", (id_p,))
-            self.db.commit()
-            self.cargar_combos()
-            self.cargar_datos()
-            self.combo_perro.set("")
-            self.combo_adoptante.set("")
-            self.fecha.delete(0, END)
-            self.obs.delete(0, END)
-            messagebox.showinfo("Éxito", "Adopción registrada y estado del perrito actualizado")
+    def actualizar(self):
+        messagebox.showinfo('Historial protegido','La fecha registrada se conserva para garantizar el historial.')
 
     def eliminar(self):
-        sel = self.tabla.selection()
-        if not sel: return
-        if messagebox.askyesno("Confirmar", "¿Eliminar registro de adopción?"):
-            id_adop = self.tabla.item(sel[0], "values")[0]
-            self.db.ejecutar("DELETE FROM adopcion WHERE id_adopcion=%s", (id_adop,))
-            self.db.commit()
-            self.cargar_datos()
+        messagebox.showinfo('Historial protegido','Las adopciones registradas se conservan como historial.')
+
+    def limpiar(self):
+        self.observaciones.delete(0,END)
+        self.cb_perro.set("")
+        self.cb_adoptante.set("")
+        self.fecha_adopcion.set_date(datetime.now())

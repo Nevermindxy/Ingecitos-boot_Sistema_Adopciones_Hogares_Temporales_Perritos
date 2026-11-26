@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 from markov import ModeloMarkov, GraficaEstadistica
 
 class GestionReportes:
@@ -6,53 +7,112 @@ class GestionReportes:
         self.parent = parent
         self.db = db
         self.crear_widgets()
-        self.cargar_estadisticas()
 
     def crear_widgets(self):
-        Label(self.parent, text="Estadísticas y Reportes", font=("Arial", 16, "bold")).pack(pady=15)
+        ttk.Label(self.parent, text="Panel de Reportes y Estadísticas", style="Titulo.TLabel").pack(pady=20)
 
-        self.frame_stats = Frame(self.parent)
-        self.frame_stats.pack(pady=10)
+        panel = ttk.Frame(self.parent)
+        panel.pack(pady=10)
 
-        self.lbl_total = Label(self.frame_stats, text="Total de perritos registrados: 0", font=("Arial", 12))
-        self.lbl_total.grid(row=0, column=0, pady=5, sticky="w")
+        ttk.Button(
+            panel,
+            text="Ver Estadística del Sistema ",
+            style="Primario.TButton",
+            width=36,
+            command=self.abrir_estadistica
+        ).pack(pady=8)
 
-        self.lbl_adoptados = Label(self.frame_stats, text="Perritos adoptados: 0", font=("Arial", 12))
-        self.lbl_adoptados.grid(row=1, column=0, pady=5, sticky="w")
+        ttk.Button(
+            panel,
+            text="Proyección Dinámica ",
+            style="Primario.TButton",
+            width=36,
+            command=self.abrir_grafica_markov
+        ).pack(pady=8)
 
-        self.lbl_disponibles = Label(self.frame_stats, text="Perritos en albergue (disponibles): 0", font=("Arial", 12))
-        self.lbl_disponibles.grid(row=2, column=0, pady=5, sticky="w")
+        ttk.Button(
+            panel,
+            text="Reporte de Perritos Adoptados",
+            style="Exito.TButton",
+            width=36,
+            command=self.abrir_detalle_adopciones
+        ).pack(pady=8)
 
-        Button(self.parent, text="Actualizar Datos", command=self.cargar_estadisticas).pack(pady=10)
-        
-        Frame(self.parent, height=2, bd=1, relief=SUNKEN).pack(fill=X, padx=50, pady=20)
-        
-        Label(self.parent, text="Proyección y Estadísticas (Apartado Matemático)", font=("Arial", 12, "bold")).pack()
-        
-        frame_botones = Frame(self.parent)
-        frame_botones.pack(pady=10)
 
-        Button(frame_botones, text="Ver Gráfica de Markov", bg="lightblue", width=22, command=self.abrir_grafica_markov).grid(row=0, column=0, padx=10)
-        Button(frame_botones, text="Ver Estadística del Sistema", bg="lightgreen", width=22, command=self.abrir_grafica_estadistica).grid(row=0, column=1, padx=10)
 
-    def cargar_estadisticas(self):
-        cursor = self.db.ejecutar("SELECT COUNT(*) FROM perro")
-        if cursor: self.lbl_total.config(text=f"Total de perritos registrados: {cursor.fetchone()[0]}")
-
-        cursor = self.db.ejecutar("SELECT COUNT(*) FROM perro WHERE estado='Adoptado'")
-        if cursor: self.lbl_adoptados.config(text=f"Perritos adoptados: {cursor.fetchone()[0]}")
-
-        cursor = self.db.ejecutar("SELECT COUNT(*) FROM perro WHERE estado='Disponible' OR estado IS NULL")
-        if cursor: self.lbl_disponibles.config(text=f"Perritos en albergue (disponibles): {cursor.fetchone()[0]}")
+    def abrir_estadistica(self):
+        ventana = Toplevel(self.parent)
+        ventana.title("Estadística del Sistema")
+        ventana.geometry("650x480")
+        GraficaEstadistica(ventana, self.db)
 
     def abrir_grafica_markov(self):
-        ventana_grafica = Toplevel(self.parent)
-        ventana_grafica.title("Modelo de Markov")
-        ventana_grafica.geometry("600x500")
-        ModeloMarkov(ventana_grafica)
+        ventana = Toplevel(self.parent)
+        ventana.title("Modelo Dinámico de Markov")
+        ventana.geometry("680x520")
+        ModeloMarkov(ventana, self.db)
 
-    def abrir_grafica_estadistica(self):
-        ventana_est = Toplevel(self.parent)
-        ventana_est.title("Estadística Actual del Sistema")
-        ventana_est.geometry("600x500")
-        GraficaEstadistica(ventana_est, self.db)
+    def abrir_detalle_adopciones(self):
+        ventana = Toplevel(self.parent)
+        ventana.title("Reporte Exacto de Perritos Adoptados")
+        ventana.geometry("950x480")
+        ventana.configure(bg="#F4F7F6")
+
+        ttk.Label(ventana, text="Historial Detallado de Adopciones", style="Titulo.TLabel").pack(pady=(12, 8))
+
+        frame_tabla = ttk.Frame(ventana)
+        frame_tabla.pack(fill=BOTH, expand=True, padx=15, pady=8)
+
+        columnas = ("id", "perro", "raza", "edad", "adoptante", "telefono", "direccion", "fecha")
+        tabla = ttk.Treeview(frame_tabla, columns=columnas, show="headings")
+
+        encabezados = [
+            ("id", "ID", 45),
+            ("perro", "Perrito", 110),
+            ("raza", "Raza", 110),
+            ("edad", "Edad", 55),
+            ("adoptante", "Adoptante", 160),
+            ("telefono", "Teléfono", 100),
+            ("direccion", "Dirección", 170),
+            ("fecha", "Fecha Adopción", 110),
+        ]
+
+        for col, texto, ancho in encabezados:
+            tabla.heading(col, text=texto)
+            tabla.column(col, width=ancho, anchor="center")
+
+        scroll_y = ttk.Scrollbar(frame_tabla, orient="vertical", command=tabla.yview)
+        tabla.configure(yscrollcommand=scroll_y.set)
+        tabla.pack(side=LEFT, fill=BOTH, expand=True)
+        scroll_y.pack(side=RIGHT, fill=Y)
+
+        sql = """
+            SELECT
+                a.id_adopcion,
+                p.nombre,
+                p.raza,
+                p.edad,
+                CONCAT(ad.nombre, ' ', ad.apellido),
+                ad.telefono,
+                ad.direccion,
+                a.fecha_adopcion
+            FROM adopcion a
+            INNER JOIN perro p ON a.id_perro = p.id_perro
+            INNER JOIN adoptante ad ON a.id_adoptante = ad.id_adoptante
+            ORDER BY a.fecha_adopcion DESC
+        """
+        cursor = self.db.ejecutar(sql)
+        registros = cursor.fetchall() if cursor else []
+
+        tabla.tag_configure("par", background="#EDF2F7")
+        tabla.tag_configure("impar", background="#FFFFFF")
+
+        for i, fila in enumerate(registros):
+            tag = "par" if i % 2 == 0 else "impar"
+            tabla.insert("", END, values=fila, tags=(tag,))
+
+        ttk.Label(
+            ventana,
+            text=f"Total de adopciones registradas: {len(registros)}",
+            font=("Segoe UI", 10, "bold")
+        ).pack(pady=(4, 12))
