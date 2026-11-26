@@ -63,19 +63,9 @@
  * **Fecha:** [25/11/2026]
 * **Objetivo:** Corregir las observaciones del ingeniero 
 * * **Actividades realizadas:**
- * Se realizó la migración del código base hacia un enfoque modular, separando las interfaces y la lógica de base de datos en distintos módulos independientes.
- * Se distribuyó el desarrollo de forma equitativa, donde *cada integrante del equipo se encargó de programar e implementar 2 archivos* específicos del sistema.
- * Se adicionaron e integraron los siguientes archivos al proyecto:
- * main.py (Punto de entrada principal)
- * conexion.py (Gestión de base de datos)
- * login.py (Autenticación y acceso)
- * perritos.py (Módulo de registro y gestión de canes)
- * adoptantes.py (Módulo de perfiles de usuarios)
- * hogares.py (Módulo de gestión de hogares temporales)
- * adopciones.py (Módulo de procesos de adopción)
- * asignaciones.py (Módulo de vinculación a hogares temporales)
- * reportes.py (Módulo de interfaz de estadísticas)
- * markov.py (Módulo del modelo matemático y gráficas)
+* Añadimos detalles en el README.md
+* Arreglamos la sintaxis del archivo perritos.py
+* Añadimos un apartado estetico mejorado al programa
 
 ### Sesión 7: Validacion de datos y Adicion de calendario en perritos.py
  * **Fecha:** [20/11/2026]
