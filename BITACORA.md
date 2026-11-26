@@ -45,24 +45,32 @@
  * **Fecha:** [19/11/2026]
 * **Objetivo:** Migracion de datos a programacion modular
 * * **Actividades realizadas:**
- * Se realizó la migración del código base hacia un enfoque modular, separando las interfaces y la lógica de base de datos en distintos módulos independientes.
- * Se distribuyó el desarrollo de forma equitativa, donde *cada integrante del equipo se encargó de programar e implementar 2 archivos* específicos del sistema.
- * Se adicionaron e integraron los siguientes archivos al proyecto:
- * main.py (Punto de entrada principal)
- * conexion.py (Gestión de base de datos)
- * login.py (Autenticación y acceso)
- * perritos.py (Módulo de registro y gestión de canes)
- * adoptantes.py (Módulo de perfiles de usuarios)
- * hogares.py (Módulo de gestión de hogares temporales)
- * adopciones.py (Módulo de procesos de adopción)
- * asignaciones.py (Módulo de vinculación a hogares temporales)
- * reportes.py (Módulo de interfaz de estadísticas)
- * markov.py (Módulo del modelo matemático y gráficas)
+* Se realizó la migración del código base hacia un enfoque modular, separando las interfaces y la lógica de base de datos en distintos módulos independientes.
+* Se distribuyó el desarrollo de forma equitativa, donde *cada integrante del equipo se encargó de programar e implementar 2 archivos* específicos del sistema.
+* Se adicionaron e integraron los siguientes archivos al proyecto:
+* main.py (Punto de entrada principal)
+* conexion.py (Gestión de base de datos)
+* login.py (Autenticación y acceso)
+* perritos.py (Módulo de registro y gestión de canes)
+* adoptantes.py (Módulo de perfiles de usuarios)
+* hogares.py (Módulo de gestión de hogares temporales)
+* adopciones.py (Módulo de procesos de adopción)
+* asignaciones.py (Módulo de vinculación a hogares temporales)
+* reportes.py (Módulo de interfaz de estadísticas)
+* markov.py (Módulo del modelo matemático y gráficas)
+### Sesión 6: Correccion a las observaciones
+ * **Fecha:** [25/11/2026]
+* **Objetivo:** Corregir las observaciones del ingeniero 
+* * **Actividades realizadas:**
+* Añadimos detalles en el README.md
+* Arreglamos la sintaxis del archivo perritos.py
+* Añadimos un apartado estetico mejorado al programa
 
-### Sesión 6: Validacion de datos y Adicion de calendario en perritos.py
+### Sesión 7: Validacion de datos y Adicion de calendario en perritos.py
  * **Fecha:** [20/11/2026]
 * **Objetivo:** Implementar la validacion de los datos e implementar el calendario para el registro de fechas en el modulo perritos.py
 * * **Actividades realizadas:**
   * Se incorporó un selector visual de calendario en el formulario de `perritos.py` para facilitar la selección de fechas en un formato estandarizado compatible con MySQL.
   * Se implementaron reglas de validación de datos en `perritos.py` para verificar campos obligatorios, formatos de texto, rangos numéricos válidos (edad) y evitar la inserción de registros vacíos o erróneos.
   * Se realizaron pruebas de registro y actualización en la interfaz gráfica comprobando que los datos validados y las fechas seleccionadas se almacenen correctamente en la base de datos
+  
