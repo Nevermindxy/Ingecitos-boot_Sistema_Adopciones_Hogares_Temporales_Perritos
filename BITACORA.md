@@ -73,4 +73,4 @@
   * Se incorporó un selector visual de calendario en el formulario de `perritos.py` para facilitar la selección de fechas en un formato estandarizado compatible con MySQL.
   * Se implementaron reglas de validación de datos en `perritos.py` para verificar campos obligatorios, formatos de texto, rangos numéricos válidos (edad) y evitar la inserción de registros vacíos o erróneos.
   * Se realizaron pruebas de registro y actualización en la interfaz gráfica comprobando que los datos validados y las fechas seleccionadas se almacenen correctamente en la base de datos
-
+  
