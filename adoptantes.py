@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk, messagebox
---
+
 class GestionAdoptantes:
     def __init__(self, parent, db):
         self.parent = parent
@@ -14,19 +14,19 @@ class GestionAdoptantes:
         izq = Frame(self.parent)
         izq.place(x=20, y=50)
 
-        Label(izq, text="Nombre:").grid(row=0, column=0, sticky="w")
+        Label(izq, text="Nombre:*").grid(row=0, column=0, sticky="w")
         self.nombre = Entry(izq, width=28)
         self.nombre.grid(row=0, column=1, pady=4)
 
-        Label(izq, text="Apellido:").grid(row=1, column=0, sticky="w")
+        Label(izq, text="Apellido:*").grid(row=1, column=0, sticky="w")
         self.apellido = Entry(izq, width=28)
         self.apellido.grid(row=1, column=1, pady=4)
 
-        Label(izq, text="Teléfono:").grid(row=2, column=0, sticky="w")
+        Label(izq, text="Teléfono:*").grid(row=2, column=0, sticky="w")
         self.telefono = Entry(izq, width=28)
         self.telefono.grid(row=2, column=1, pady=4)
 
-        Label(izq, text="Dirección:").grid(row=3, column=0, sticky="w")
+        Label(izq, text="Dirección:*").grid(row=3, column=0, sticky="w")
         self.direccion = Entry(izq, width=28)
         self.direccion.grid(row=3, column=1, pady=4)
 
@@ -57,14 +57,16 @@ class GestionAdoptantes:
         ape = self.apellido.get().strip()
         tel = self.telefono.get().strip()
         dir_txt = self.direccion.get().strip()
-        cor = self.correo.get().strip()
+        cor = self.correo.get().strip() 
 
-        if not nom or not ape:
-            messagebox.showwarning("Faltan datos", "Nombre y apellido son obligatorios.")
+        if not nom or not ape or not tel or not dir_txt:
+            messagebox.showwarning("Faltan datos", "Nombre, apellido, teléfono y dirección son obligatorios.")
             return None
-        if tel and (not tel.isdigit() or len(tel) < 7):
+            
+        if not tel.isdigit() or len(tel) < 7:
             messagebox.showerror("Teléfono inválido", "El teléfono debe contener solo números (mínimo 7 dígitos).")
             return None
+            
         if cor and ("@" not in cor or "." not in cor):
             messagebox.showerror("Correo inválido", "Ingresa un correo electrónico válido.")
             return None
@@ -87,16 +89,15 @@ class GestionAdoptantes:
         datos = cursor.fetchone()
         if datos:
             self.limpiar()
-            self.nombre.insert(0, datos[0] or "")
-            self.apellido.insert(0, datos[1] or "")
-            self.telefono.insert(0, datos[2] or "")
-            self.direccion.insert(0, datos[3] or "")
+            self.nombre.insert(0, datos[0])
+            self.apellido.insert(0, datos[1])
+            self.telefono.insert(0, datos[2])
+            self.direccion.insert(0, datos[3])
             self.correo.insert(0, datos[4] or "")
 
     def anadir(self):
         vals = self.validar_campos()
-        if not vals:
-            return
+        if not vals: return
         sql = "INSERT INTO adoptante (nombre, apellido, telefono, direccion, correo) VALUES (%s,%s,%s,%s,%s)"
         if self.db.ejecutar(sql, vals):
             self.db.commit()
@@ -107,11 +108,10 @@ class GestionAdoptantes:
     def actualizar(self):
         sel = self.tabla.selection()
         if not sel:
-            messagebox.showwarning("Atención", "Selecciona un adoptante de la tabla")
+            messagebox.showwarning("Atención", "Selecciona un adoptante")
             return
         vals = self.validar_campos()
-        if not vals:
-            return
+        if not vals: return
         id_a = self.tabla.item(sel[0], "values")[0]
         sql = "UPDATE adoptante SET nombre=%s, apellido=%s, telefono=%s, direccion=%s, correo=%s WHERE id_adoptante=%s"
         if self.db.ejecutar(sql, vals + (id_a,)):
