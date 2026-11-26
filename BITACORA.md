@@ -54,4 +54,10 @@
 * asignaciones.py (Módulo de vinculación a hogares temporales)
 * reportes.py (Módulo de interfaz de estadísticas)
 * markov.py (Módulo del modelo matemático y gráficas)
-
+### Sesión 6: Correccion a las observaciones
+ * **Fecha:** [25/11/2026]
+* **Objetivo:** Corregir las observaciones del ingeniero 
+* * **Actividades realizadas:**
+* Añadimos detalles en el README.md
+* Arreglamos la sintaxis del archivo perritos.py
+* Añadimos un apartado estetico mejorado al programa 
