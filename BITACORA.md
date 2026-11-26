@@ -63,10 +63,6 @@
  * **Fecha:** [25/11/2026]
 * **Objetivo:** Corregir las observaciones del ingeniero 
 * * **Actividades realizadas:**
-* Añadimos detalles en el README.md
-* Arreglamos la sintaxis del archivo perritos.py
-* Añadimos un apartado estetico mejorado al programa 
-=======
  * Se realizó la migración del código base hacia un enfoque modular, separando las interfaces y la lógica de base de datos en distintos módulos independientes.
  * Se distribuyó el desarrollo de forma equitativa, donde *cada integrante del equipo se encargó de programar e implementar 2 archivos* específicos del sistema.
  * Se adicionaron e integraron los siguientes archivos al proyecto:
