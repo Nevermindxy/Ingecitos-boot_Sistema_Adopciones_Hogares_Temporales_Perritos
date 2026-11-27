@@ -1,10 +1,8 @@
-
 CREATE DATABASE sistema_perritos;
-
 USE sistema_perritos;
 
 CREATE TABLE adoptante (
-    id_adoptante INT AUTO_INCREMENT PRIMARY KEY,
+    ci VARCHAR(15) PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
     telefono VARCHAR(15),
@@ -27,15 +25,17 @@ CREATE TABLE perro (
 CREATE TABLE adopcion (
     id_adopcion INT AUTO_INCREMENT PRIMARY KEY,
     id_perro INT NOT NULL,
-    id_adoptante INT NOT NULL,
+    ci VARCHAR(15) NOT NULL,
     fecha_adopcion DATE,
     observaciones VARCHAR(200),
     FOREIGN KEY (id_perro) REFERENCES perro(id_perro),
-    FOREIGN KEY (id_adoptante) REFERENCES adoptante(id_adoptante)
+    FOREIGN KEY (ci) REFERENCES adoptante(ci)
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE hogar_temporal (
     id_hogar INT AUTO_INCREMENT PRIMARY KEY,
+    ci_responsable VARCHAR(15) NOT NULL,
     nombre_responsable VARCHAR(30) NOT NULL,
     telefono VARCHAR(15),
     direccion VARCHAR(100),
