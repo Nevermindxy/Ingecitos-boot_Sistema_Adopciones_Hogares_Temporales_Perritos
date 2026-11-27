@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk, messagebox
 from datetime import datetime
-from tkcalendar import DateEntry
+from calendario import DateEntry
 from operaciones import asignar, finalizar
 from validaciones import validar_requeridos, validar_rango_fechas
 
@@ -30,7 +30,7 @@ class GestionAsignaciones:
         self.cb_hogar = ttk.Combobox(izq, width=25, state="readonly")
         self.cb_hogar.grid(row=1, column=1, pady=4)
 
-        ttk.Label(izq, text="Fecha Inicio:*").grid(row=2, column=0, sticky="w", pady=4)
+        ttk.Label(izq, text="Fecha Inicio (hoy):*").grid(row=2, column=0, sticky="w", pady=4)
         self.fecha_inicio = DateEntry(izq, width=25, background="#2B6CB0", foreground="white", borderwidth=2, date_pattern="yyyy-mm-dd", state="readonly")
         self.fecha_inicio.grid(row=2, column=1, pady=4)
 

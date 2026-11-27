@@ -24,7 +24,7 @@ class GestionReportes:
 
         ttk.Button(
             panel,
-            text="Proyección Dinámica ",
+            text="Proyección Dinámica (Markov)",
             style="Primario.TButton",
             width=36,
             command=self.abrir_grafica_markov
@@ -39,7 +39,6 @@ class GestionReportes:
         ).pack(pady=8)
 
 
-
     def abrir_estadistica(self):
         ventana = Toplevel(self.parent)
         ventana.title("Estadística del Sistema")
@@ -49,7 +48,7 @@ class GestionReportes:
     def abrir_grafica_markov(self):
         ventana = Toplevel(self.parent)
         ventana.title("Modelo Dinámico de Markov")
-        ventana.geometry("680x520")
+        ventana.geometry("800x580")
         ModeloMarkov(ventana, self.db)
 
     def abrir_detalle_adopciones(self):
@@ -116,3 +115,4 @@ class GestionReportes:
             text=f"Total de adopciones registradas: {len(registros)}",
             font=("Segoe UI", 10, "bold")
         ).pack(pady=(4, 12))
+

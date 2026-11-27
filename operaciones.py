@@ -9,6 +9,7 @@ def estado(c, perro, nuevo, ubicacion, motivo):
         c.execute('INSERT INTO historial_estados (id_perro,estado_anterior,estado_nuevo,motivo) VALUES (%s,%s,%s,%s)',(perro,anterior,nuevo,motivo))
 
 def asignar(db, perro, hogar, inicio, fin, obs=''):
+    if len(obs.strip()) > 200: raise ValueError("Observaciones: máximo 200 caracteres.")
     inicio,fin=date.fromisoformat(inicio),date.fromisoformat(fin)
     if inicio != date.today() or fin < inicio: raise ValueError('La estadía debe comenzar hoy y finalizar hoy o después.')
     with db.transaccion() as c:
@@ -24,6 +25,7 @@ def asignar(db, perro, hogar, inicio, fin, obs=''):
         estado(c,perro,'Hogar Temporal',direccion,'Asignación temporal')
 
 def adoptar(db, perro, adoptante, fecha, obs=''):
+    if len(obs.strip()) > 200: raise ValueError("Observaciones: máximo 200 caracteres.")
     if date.fromisoformat(fecha)!=date.today(): raise ValueError('La adopción debe registrarse con fecha de hoy.')
     with db.transaccion() as c:
         c.execute('SELECT estado FROM perro WHERE id_perro=%s FOR UPDATE',(perro,))

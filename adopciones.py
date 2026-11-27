@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk, messagebox
 from datetime import datetime
-from tkcalendar import DateEntry
+from calendario import DateEntry
 from operaciones import adoptar
 from validaciones import validar_requeridos
 
@@ -30,7 +30,7 @@ class GestionAdopciones:
         self.cb_adoptante = ttk.Combobox(izq, width=25, state="readonly")
         self.cb_adoptante.grid(row=1, column=1, pady=4)
 
-        ttk.Label(izq, text="Fecha Adopción:*").grid(row=2, column=0, sticky="w", pady=4)
+        ttk.Label(izq, text="Fecha Adopción (hoy):*").grid(row=2, column=0, sticky="w", pady=4)
         self.fecha_adopcion = DateEntry(
             izq,
             width=25,

@@ -7,10 +7,17 @@ def validar_requeridos(campos: dict):
             return False, f"El campo '{nombre}' es obligatorio."
     return True, ""
 
-def validar_solo_letras(valor: str, nombre_campo: str):
-    patron = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$"
-    if not re.match(patron, valor.strip()):
+def validar_solo_letras(valor, nombre_campo, minimo=2, maximo=50):
+    valor = valor.strip()
+    if not all(c.isalpha() or c == " " for c in valor):
         return False, f"El campo '{nombre_campo}' solo debe contener letras."
+    if not minimo <= sum(c.isalpha() for c in valor) or len(valor) > maximo:
+        return False, f"El campo '{nombre_campo}' debe tener al menos {minimo} letras y máximo {maximo} caracteres."
+    return True, ""
+
+def validar_longitud(valor, campo, minimo, maximo):
+    if not minimo <= len(valor.strip()) <= maximo:
+        return False, f"El campo '{campo}' debe tener entre {minimo} y {maximo} caracteres."
     return True, ""
 
 def validar_entero_rango(valor: str, nombre_campo: str, minimo: int, maximo: int):
@@ -24,15 +31,15 @@ def validar_entero_rango(valor: str, nombre_campo: str, minimo: int, maximo: int
 
 def validar_telefono(valor: str):
     limpio = valor.strip()
-    if not limpio.isdigit() or not (7 <= len(limpio) <= 10):
-        return False, "El teléfono debe contener solo números (entre 7 y 10 dígitos)."
+    if not re.fullmatch(r"[0-9]{8}", limpio):
+        return False, "El teléfono debe contener solo números (8 dígitos)."
     return True, ""
 
 def validar_correo(valor: str):
     if not valor.strip():
         return True, ""
     patron = r"^[\w\.-]+@[\w\.-]+\.\w{2,}$"
-    if not re.match(patron, valor.strip()):
+    if len(valor.strip()) > 50 or not re.fullmatch(patron, valor.strip()):
         return False, "Ingresa un correo electrónico válido (ej. usuario@correo.com)."
     return True, ""
 

@@ -1,4 +1,3 @@
-
 from tkinter import Tk, ttk
 from conexion import ConexionDB
 from estilos import aplicar_estilos

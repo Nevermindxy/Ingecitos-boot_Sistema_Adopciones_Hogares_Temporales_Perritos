@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk, messagebox
-from validaciones import validar_requeridos, validar_solo_letras, validar_telefono, validar_correo
+from validaciones import validar_longitud, validar_requeridos, validar_solo_letras, validar_telefono, validar_correo
 
 class GestionAdoptantes:
     def __init__(self, parent, db):
@@ -81,6 +81,11 @@ class GestionAdoptantes:
             if not ok:
                 messagebox.showerror("Dato inválido", msg)
                 return None
+
+        ok, msg = validar_longitud(dir_txt, "Dirección", 5, 150)
+        if not ok:
+            messagebox.showerror("Dirección inválida", msg)
+            return None
 
         ok, msg = validar_telefono(tel)
         if not ok:

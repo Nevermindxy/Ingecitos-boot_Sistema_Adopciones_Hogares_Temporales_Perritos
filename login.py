@@ -1,4 +1,3 @@
-
 from tkinter import *
 from tkinter import messagebox
 
@@ -123,7 +122,7 @@ class Login:
             cursor="hand2"
         ).pack(anchor="w", pady=(0, 16))
 
-
+        # Botón Ingresar con efecto hover
         self.btn_ingresar = Button(
             card,
             text="Ingresar",
@@ -147,26 +146,17 @@ class Login:
     def toggle_password(self):
         self.password.config(show="" if self.mostrar_var.get() else "•")
 
-
     def verificar(self):
         user = self.usuario.get().strip()
         pwd = self.password.get()
 
         if not user or not pwd:
-            messagebox.showwarning(
-                "Datos incompletos",
-                "Ingresa tu usuario y contraseña."
-            )
+            messagebox.showwarning("Datos incompletos", "Ingresa tu usuario y contraseña.")
             return
 
         if user == "admin" and pwd == "somosingecitos":
             self.callback_exito()
-
         else:
-            messagebox.showerror(
-                "Error",
-                "Usuario o contraseña incorrectos"
-            )
-
+            messagebox.showerror("Error", "Usuario o contraseña incorrectos")
             self.password.delete(0, END)
             self.password.focus()

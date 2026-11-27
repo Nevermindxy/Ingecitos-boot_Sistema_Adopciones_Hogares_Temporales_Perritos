@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk, messagebox
-from datetime import datetime
-from tkcalendar import DateEntry
+from datetime import datetime, date
+from calendario import DateEntry
 from validaciones import validar_requeridos, validar_solo_letras, validar_entero_rango
 
 class GestionPerritos:
@@ -26,36 +26,46 @@ class GestionPerritos:
         self.nombre.grid(row=0, column=1, pady=3)
 
         ttk.Label(izq, text="Raza:*").grid(row=1, column=0, sticky="w", pady=3)
-        self.raza = ttk.Entry(izq, width=28)
+        self.razas = ["Mestizo", "Labrador", "Pastor alemán", "Golden retriever",
+                      "Poodle", "Chihuahua", "Schnauzer", "Pitbull", "Rottweiler",
+                      "Husky siberiano", "Beagle", "Boxer", "Bulldog", "Dálmata",
+                      "Pug", "Shih Tzu", "Cocker spaniel", "Doberman", "Otros"]
+        self.raza = ttk.Combobox(izq, values=self.razas, width=25, state="readonly")
         self.raza.grid(row=1, column=1, pady=3)
+        self.etiqueta_otra = ttk.Label(izq, text="Especifique raza:*")
+        self.otra_raza = ttk.Entry(izq, width=28)
+        self.etiqueta_otra.grid(row=2, column=0, sticky="w", pady=3)
+        self.otra_raza.grid(row=2, column=1, pady=3)
+        self.raza.bind("<<ComboboxSelected>>", self.mostrar_otra_raza)
+        self.mostrar_otra_raza()
 
-        ttk.Label(izq, text="Edad (años):*").grid(row=2, column=0, sticky="w", pady=3)
+        ttk.Label(izq, text="Edad (años):*").grid(row=3, column=0, sticky="w", pady=3)
         self.edad = ttk.Entry(izq, width=28)
-        self.edad.grid(row=2, column=1, pady=3)
+        self.edad.grid(row=3, column=1, pady=3)
 
-        ttk.Label(izq, text="Sexo:*").grid(row=3, column=0, sticky="w", pady=3)
+        ttk.Label(izq, text="Sexo:*").grid(row=4, column=0, sticky="w", pady=3)
         self.sexo = ttk.Combobox(izq, values=["Macho", "Hembra"], width=25, state="readonly")
-        self.sexo.grid(row=3, column=1, pady=3)
+        self.sexo.grid(row=4, column=1, pady=3)
 
-        ttk.Label(izq, text="Tamaño:*").grid(row=4, column=0, sticky="w", pady=3)
+        ttk.Label(izq, text="Tamaño:*").grid(row=5, column=0, sticky="w", pady=3)
         self.tamano = ttk.Combobox(izq, values=["Pequeño", "Mediano", "Grande"], width=25, state="readonly")
-        self.tamano.grid(row=4, column=1, pady=3)
+        self.tamano.grid(row=5, column=1, pady=3)
 
-        ttk.Label(izq, text="Estado:*").grid(row=5, column=0, sticky="w", pady=3)
+        ttk.Label(izq, text="Estado:*").grid(row=6, column=0, sticky="w", pady=3)
         self.estado = ttk.Combobox(izq, values=["Disponible"], width=25, state="disabled")
         self.estado.set("Disponible")
-        self.estado.grid(row=5, column=1, pady=3)
+        self.estado.grid(row=6, column=1, pady=3)
 
-        ttk.Label(izq, text="Ubicación:*").grid(row=6, column=0, sticky="w", pady=3)
+        ttk.Label(izq, text="Ubicación:*").grid(row=7, column=0, sticky="w", pady=3)
         self.ubicacion = ttk.Entry(izq, width=28)
-        self.ubicacion.grid(row=6, column=1, pady=3)
+        self.ubicacion.grid(row=7, column=1, pady=3)
 
-        ttk.Label(izq, text="Fecha Reg:*").grid(row=7, column=0, sticky="w", pady=3)
+        ttk.Label(izq, text="Fecha Reg:*").grid(row=8, column=0, sticky="w", pady=3)
         self.fecha = DateEntry(izq, width=25, background="#2B6CB0", foreground="white", borderwidth=2, date_pattern="yyyy-mm-dd", state="readonly")
-        self.fecha.grid(row=7, column=1, pady=3)
+        self.fecha.grid(row=8, column=1, pady=3)
 
         frame_btn = ttk.Frame(izq)
-        frame_btn.grid(row=8, column=0, columnspan=2, pady=15)
+        frame_btn.grid(row=9, column=0, columnspan=2, pady=15)
 
         ttk.Button(frame_btn, text="Añadir", style="Exito.TButton", width=13, command=self.anadir).grid(row=0, column=0, padx=5, pady=5)
         ttk.Button(frame_btn, text="Actualizar", style="Primario.TButton", width=13, command=self.actualizar).grid(row=0, column=1, padx=5, pady=5)
@@ -87,9 +97,18 @@ class GestionPerritos:
         self.tabla.pack(fill="both", expand=True)
         self.tabla.bind("<<TreeviewSelect>>", self.seleccionar_fila)
 
+    def mostrar_otra_raza(self, event=None):
+        if self.raza.get() == "Otros":
+            self.etiqueta_otra.grid()
+            self.otra_raza.grid()
+        else:
+            self.etiqueta_otra.grid_remove()
+            self.otra_raza.grid_remove()
+            self.otra_raza.delete(0, END)
+
     def validar_campos(self):
         nom = self.nombre.get().strip()
-        raza = self.raza.get().strip()
+        raza = self.otra_raza.get().strip() if self.raza.get() == "Otros" else self.raza.get().strip()
         edad_txt = self.edad.get().strip()
         sexo = self.sexo.get()
         tamano = self.tamano.get()
@@ -106,7 +125,7 @@ class GestionPerritos:
             return None
 
         for campo, val in [("Nombre", nom), ("Raza", raza)]:
-            ok, msg = validar_solo_letras(val, campo)
+            ok, msg = validar_solo_letras(val, campo, maximo=30)
             if not ok:
                 messagebox.showerror("Dato inválido", msg)
                 return None
@@ -116,6 +135,12 @@ class GestionPerritos:
             messagebox.showerror("Dato inválido", res)
             return None
 
+        if raza.casefold() == "otros":
+            messagebox.showwarning("Raza", "Especifica la raza del perrito.")
+            return None
+        if self.fecha.get_date() > date.today():
+            messagebox.showwarning("Fecha", "La fecha de registro no puede ser futura.")
+            return None
         return (nom, raza, res, sexo, tamano, est, ubi, fecha_txt)
 
     def cargar_datos(self, filtro=""):
@@ -144,7 +169,14 @@ class GestionPerritos:
         if datos:
             self.limpiar()
             self.nombre.insert(0, datos[0] or "")
-            self.raza.insert(0, datos[1] or "")
+            raza = datos[1] or ""
+            if raza in self.razas and raza != "Otros":
+                self.raza.set(raza)
+                self.mostrar_otra_raza()
+            elif raza:
+                self.raza.set("Otros")
+                self.mostrar_otra_raza()
+                self.otra_raza.insert(0, raza)
             self.edad.insert(0, str(datos[2]))
             self.sexo.set(datos[3])
             self.tamano.set(datos[4])
@@ -195,7 +227,8 @@ class GestionPerritos:
 
     def limpiar(self):
         self.nombre.delete(0, END)
-        self.raza.delete(0, END)
+        self.raza.set("")
+        self.mostrar_otra_raza()
         self.edad.delete(0, END)
         self.sexo.set("")
         self.tamano.set("")

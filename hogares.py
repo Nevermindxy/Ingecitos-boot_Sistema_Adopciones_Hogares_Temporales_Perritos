@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk, messagebox
-from validaciones import validar_requeridos, validar_solo_letras, validar_telefono, validar_entero_rango
+from validaciones import validar_longitud, validar_requeridos, validar_solo_letras, validar_telefono, validar_entero_rango
 
 class GestionHogares:
     def __init__(self, parent, db):
@@ -71,9 +71,14 @@ class GestionHogares:
             messagebox.showwarning("Faltan datos", msg)
             return None
 
-        ok, msg = validar_solo_letras(resp, "Responsable")
+        ok, msg = validar_solo_letras(resp, "Responsable", maximo=30)
         if not ok:
             messagebox.showerror("Dato inválido", msg)
+            return None
+
+        ok, msg = validar_longitud(dir_txt, "Dirección", 5, 100)
+        if not ok:
+            messagebox.showerror("Dirección inválida", msg)
             return None
 
         ok, msg = validar_telefono(tel)
