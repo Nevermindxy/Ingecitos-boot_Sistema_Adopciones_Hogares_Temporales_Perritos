@@ -71,8 +71,8 @@ class GestionAsignaciones:
         c_p = self.db.ejecutar("SELECT id_perro, nombre FROM perro WHERE estado = 'Disponible'")
         self.cb_perro["values"] = [f"{r[0]} - {r[1]}" for r in c_p.fetchall()] if c_p else []
 
-        c_h = self.db.ejecutar("SELECT id_hogar, nombre_responsable FROM hogar_temporal")
-        self.cb_hogar["values"] = [f"{r[0]} - {r[1]}" for r in c_h.fetchall()] if c_h else []
+        c_h = self.db.ejecutar("SELECT id_hogar, nombre_responsable, ci_responsable FROM hogar_temporal")
+        self.cb_hogar["values"] = [f"{r[0]} - {r[1]} ({r[2]})" for r in c_h.fetchall()] if c_h else []
 
     def cargar_datos(self):
         for fila in self.tabla.get_children():

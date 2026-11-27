@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk, messagebox
-from validaciones import validar_longitud, validar_requeridos, validar_solo_letras, validar_telefono, validar_entero_rango
+from validaciones import validar_longitud, validar_requeridos, validar_solo_letras, validar_telefono, validar_entero_rango, validar_ci
 
 class GestionHogares:
     def __init__(self, parent, db):
@@ -34,8 +34,12 @@ class GestionHogares:
         self.capacidad = ttk.Entry(izq, width=28)
         self.capacidad.grid(row=3, column=1, pady=4)
 
+        ttk.Label(izq, text="CI responsable:*").grid(row=4, column=0, sticky="w", pady=4)
+        self.ci = ttk.Entry(izq, width=28)
+        self.ci.grid(row=4, column=1, pady=4)
+
         frame_btn = ttk.Frame(izq)
-        frame_btn.grid(row=4, column=0, columnspan=2, pady=15)
+        frame_btn.grid(row=5, column=0, columnspan=2, pady=15)
 
         ttk.Button(frame_btn, text="Añadir", style="Exito.TButton", width=13, command=self.anadir).grid(row=0, column=0, padx=5, pady=5)
         ttk.Button(frame_btn, text="Actualizar", style="Primario.TButton", width=13, command=self.actualizar).grid(row=0, column=1, padx=5, pady=5)
@@ -48,10 +52,10 @@ class GestionHogares:
         scroll = ttk.Scrollbar(der)
         scroll.pack(side="right", fill="y")
 
-        self.tabla = ttk.Treeview(der, columns=("id", "resp", "tel", "cap", "libres"), show="headings", yscrollcommand=scroll.set)
+        self.tabla = ttk.Treeview(der, columns=("id", "ci", "resp", "tel", "cap", "libres"), show="headings", yscrollcommand=scroll.set)
         scroll.config(command=self.tabla.yview)
 
-        for col, texto, ancho in [("id", "ID", 45), ("resp", "Responsable", 150), ("tel", "Teléfono", 110), ("cap", "Capacidad", 80), ("libres", "Libres", 65)]:
+        for col, texto, ancho in [("id", "ID", 45), ("ci", "CI responsable", 110), ("resp", "Responsable", 150), ("tel", "Teléfono", 110), ("cap", "Capacidad", 80), ("libres", "Libres", 65)]:
             self.tabla.heading(col, text=texto)
             self.tabla.column(col, width=ancho, anchor="center")
 
@@ -61,14 +65,20 @@ class GestionHogares:
         self.tabla.bind("<<TreeviewSelect>>", self.seleccionar_fila)
 
     def validar_campos(self):
+        ci = self.ci.get().strip().upper()
         resp = self.responsable.get().strip()
         tel = self.telefono.get().strip()
         dir_txt = self.direccion.get().strip()
         cap_txt = self.capacidad.get().strip()
 
-        ok, msg = validar_requeridos({"Responsable": resp, "Teléfono": tel, "Dirección": dir_txt, "Capacidad": cap_txt})
+        ok, msg = validar_requeridos({"CI": ci, "Responsable": resp, "Teléfono": tel, "Dirección": dir_txt, "Capacidad": cap_txt})
         if not ok:
             messagebox.showwarning("Faltan datos", msg)
+            return None
+
+        ok, msg = validar_ci(ci)
+        if not ok:
+            messagebox.showerror("CI inválido", msg)
             return None
 
         ok, msg = validar_solo_letras(resp, "Responsable", maximo=30)
@@ -91,12 +101,12 @@ class GestionHogares:
             messagebox.showerror("Capacidad inválida", cap)
             return None
 
-        return (resp, tel, dir_txt, cap)
+        return (resp, tel, dir_txt, cap, ci)
 
     def cargar_datos(self):
         for fila in self.tabla.get_children():
             self.tabla.delete(fila)
-        cursor = self.db.ejecutar("SELECT h.id_hogar, h.nombre_responsable, h.telefono, h.capacidad, h.capacidad-(SELECT COUNT(*) FROM asignacion_temporal a WHERE a.id_hogar=h.id_hogar AND a.finalizada=0) FROM hogar_temporal h")
+        cursor = self.db.ejecutar("SELECT h.id_hogar, h.ci_responsable, h.nombre_responsable, h.telefono, h.capacidad, h.capacidad-(SELECT COUNT(*) FROM asignacion_temporal a WHERE a.id_hogar=h.id_hogar AND a.finalizada=0) FROM hogar_temporal h")
         if cursor:
             for i, reg in enumerate(cursor.fetchall()):
                 tag = "par" if i % 2 == 0 else "impar"
@@ -107,7 +117,7 @@ class GestionHogares:
         if not sel:
             return
         id_h = self.tabla.item(sel[0], "values")[0]
-        cursor = self.db.ejecutar("SELECT nombre_responsable, telefono, direccion, capacidad FROM hogar_temporal WHERE id_hogar=%s", (id_h,))
+        cursor = self.db.ejecutar("SELECT nombre_responsable, telefono, direccion, capacidad, ci_responsable FROM hogar_temporal WHERE id_hogar=%s", (id_h,))
         datos = cursor.fetchone() if cursor else None
         if datos:
             self.limpiar()
@@ -115,12 +125,13 @@ class GestionHogares:
             self.telefono.insert(0, datos[1])
             self.direccion.insert(0, datos[2])
             self.capacidad.insert(0, str(datos[3]))
+            self.ci.insert(0, datos[4] or "")
 
     def anadir(self):
         vals = self.validar_campos()
         if not vals:
             return
-        sql = "INSERT INTO hogar_temporal (nombre_responsable, telefono, direccion, capacidad) VALUES (%s,%s,%s,%s)"
+        sql = "INSERT INTO hogar_temporal (nombre_responsable, telefono, direccion, capacidad, ci_responsable) VALUES (%s,%s,%s,%s,%s)"
         if self.db.ejecutar(sql, vals):
             self.db.commit()
             self.cargar_datos()
@@ -140,7 +151,7 @@ class GestionHogares:
         if not c or c.fetchone()[0] > vals[3]:
             messagebox.showwarning("Capacidad", "La capacidad no puede ser menor a la ocupación actual.")
             return
-        sql = "UPDATE hogar_temporal SET nombre_responsable=%s, telefono=%s, direccion=%s, capacidad=%s WHERE id_hogar=%s"
+        sql = "UPDATE hogar_temporal SET nombre_responsable=%s, telefono=%s, direccion=%s, capacidad=%s, ci_responsable=%s WHERE id_hogar=%s"
         if self.db.ejecutar(sql, vals + (id_h,)):
             self.db.commit()
             self.cargar_datos()
@@ -160,6 +171,7 @@ class GestionHogares:
                 self.cargar_datos(); self.limpiar()
 
     def limpiar(self):
+        self.ci.delete(0, END)
         self.responsable.delete(0, END)
         self.telefono.delete(0, END)
         self.direccion.delete(0, END)

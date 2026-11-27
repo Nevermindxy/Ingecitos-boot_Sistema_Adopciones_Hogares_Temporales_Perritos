@@ -26,7 +26,7 @@ class GestionAdopciones:
         self.cb_perro = ttk.Combobox(izq, width=25, state="readonly")
         self.cb_perro.grid(row=0, column=1, pady=4)
 
-        ttk.Label(izq, text="Adoptante:*").grid(row=1, column=0, sticky="w", pady=4)
+        ttk.Label(izq, text="CI - Adoptante:*").grid(row=1, column=0, sticky="w", pady=4)
         self.cb_adoptante = ttk.Combobox(izq, width=25, state="readonly")
         self.cb_adoptante.grid(row=1, column=1, pady=4)
 
@@ -59,10 +59,10 @@ class GestionAdopciones:
         scroll = ttk.Scrollbar(der)
         scroll.pack(side="right", fill="y")
 
-        self.tabla = ttk.Treeview(der, columns=("id", "perro", "adoptante", "fecha"), show="headings", yscrollcommand=scroll.set)
+        self.tabla = ttk.Treeview(der, columns=("id", "perro", "ci", "adoptante", "fecha"), show="headings", yscrollcommand=scroll.set)
         scroll.config(command=self.tabla.yview)
 
-        for col, texto, ancho in [("id", "ID", 45), ("perro", "Perrito", 120), ("adoptante", "Adoptante", 160), ("fecha", "Fecha Adopción", 110)]:
+        for col, texto, ancho in [("id", "ID", 45), ("perro", "Perrito", 120), ("ci", "CI", 95), ("adoptante", "Adoptante", 130), ("fecha", "Fecha Adopción", 110)]:
             self.tabla.heading(col, text=texto)
             self.tabla.column(col, width=ancho, anchor="center")
 
@@ -75,17 +75,17 @@ class GestionAdopciones:
         c_p = self.db.ejecutar("SELECT id_perro, nombre FROM perro WHERE estado != 'Adoptado'")
         self.cb_perro["values"] = [f"{r[0]} - {r[1]}" for r in c_p.fetchall()] if c_p else []
 
-        c_a = self.db.ejecutar("SELECT id_adoptante, CONCAT(nombre, ' ', apellido) FROM adoptante")
+        c_a = self.db.ejecutar("SELECT ci, CONCAT(nombre, ' ', apellido) FROM adoptante")
         self.cb_adoptante["values"] = [f"{r[0]} - {r[1]}" for r in c_a.fetchall()] if c_a else []
 
     def cargar_datos(self):
         for fila in self.tabla.get_children():
             self.tabla.delete(fila)
         sql = """
-            SELECT a.id_adopcion, p.nombre, CONCAT(ad.nombre, ' ', ad.apellido), a.fecha_adopcion
+            SELECT a.id_adopcion, p.nombre, ad.ci, CONCAT(ad.nombre, ' ', ad.apellido), a.fecha_adopcion
             FROM adopcion a
             JOIN perro p ON a.id_perro = p.id_perro
-            JOIN adoptante ad ON a.id_adoptante = ad.id_adoptante
+            JOIN adoptante ad ON a.ci = ad.ci
             ORDER BY a.fecha_adopcion DESC
         """
         cursor = self.db.ejecutar(sql)
@@ -98,13 +98,16 @@ class GestionAdopciones:
         sel = self.tabla.selection()
         if not sel:
             return
-        fecha_val = self.tabla.item(sel[0], "values")[3]
+        fecha_val = self.tabla.item(sel[0], "values")[4]
         if fecha_val:
             self.fecha_adopcion.set_date(fecha_val)
 
     def anadir(self):
+        if self.cb_perro.get() not in self.cb_perro["values"] or self.cb_adoptante.get() not in self.cb_adoptante["values"]:
+            messagebox.showwarning("Datos incompletos", "Selecciona un perro y un adoptante de las listas.")
+            return
         try:
-            adoptar(self.db, int(self.cb_perro.get().split(' - ')[0]), int(self.cb_adoptante.get().split(' - ')[0]), self.fecha_adopcion.get(), self.observaciones.get())
+            adoptar(self.db, int(self.cb_perro.get().split(' - ')[0]), self.cb_adoptante.get().split(' - ', 1)[0], self.fecha_adopcion.get(), self.observaciones.get())
         except Exception as e:
             messagebox.showerror('No se pudo registrar', str(e)); return
         self.cargar_datos(); self.cargar_combos(); self.limpiar()

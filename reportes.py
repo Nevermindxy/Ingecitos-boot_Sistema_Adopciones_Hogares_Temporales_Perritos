@@ -54,7 +54,7 @@ class GestionReportes:
     def abrir_detalle_adopciones(self):
         ventana = Toplevel(self.parent)
         ventana.title("Reporte Exacto de Perritos Adoptados")
-        ventana.geometry("950x480")
+        ventana.geometry("1050x480")
         ventana.configure(bg="#F4F7F6")
 
         ttk.Label(ventana, text="Historial Detallado de Adopciones", style="Titulo.TLabel").pack(pady=(12, 8))
@@ -62,7 +62,7 @@ class GestionReportes:
         frame_tabla = ttk.Frame(ventana)
         frame_tabla.pack(fill=BOTH, expand=True, padx=15, pady=8)
 
-        columnas = ("id", "perro", "raza", "edad", "adoptante", "telefono", "direccion", "fecha")
+        columnas = ("id", "perro", "raza", "edad", "ci", "adoptante", "telefono", "direccion", "fecha")
         tabla = ttk.Treeview(frame_tabla, columns=columnas, show="headings")
 
         encabezados = [
@@ -70,6 +70,7 @@ class GestionReportes:
             ("perro", "Perrito", 110),
             ("raza", "Raza", 110),
             ("edad", "Edad", 55),
+            ("ci", "CI", 100),
             ("adoptante", "Adoptante", 160),
             ("telefono", "Teléfono", 100),
             ("direccion", "Dirección", 170),
@@ -82,6 +83,9 @@ class GestionReportes:
 
         scroll_y = ttk.Scrollbar(frame_tabla, orient="vertical", command=tabla.yview)
         tabla.configure(yscrollcommand=scroll_y.set)
+        scroll_x = ttk.Scrollbar(frame_tabla, orient="horizontal", command=tabla.xview)
+        tabla.configure(xscrollcommand=scroll_x.set)
+        scroll_x.pack(side=BOTTOM, fill=X)
         tabla.pack(side=LEFT, fill=BOTH, expand=True)
         scroll_y.pack(side=RIGHT, fill=Y)
 
@@ -91,13 +95,14 @@ class GestionReportes:
                 p.nombre,
                 p.raza,
                 p.edad,
+                ad.ci,
                 CONCAT(ad.nombre, ' ', ad.apellido),
                 ad.telefono,
                 ad.direccion,
                 a.fecha_adopcion
             FROM adopcion a
             INNER JOIN perro p ON a.id_perro = p.id_perro
-            INNER JOIN adoptante ad ON a.id_adoptante = ad.id_adoptante
+            INNER JOIN adoptante ad ON a.ci = ad.ci
             ORDER BY a.fecha_adopcion DESC
         """
         cursor = self.db.ejecutar(sql)

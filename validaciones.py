@@ -52,3 +52,9 @@ def validar_rango_fechas(fecha_inicio: str, fecha_fin: str):
         return True, ""
     except ValueError:
         return False, "Formato de fecha inválido (debe ser AAAA-MM-DD)."
+
+def validar_ci(valor):
+    # Regla del proyecto: 5 a 10 dígitos y complemento opcional.
+    if not re.fullmatch(r"[0-9]{5,10}(?:-[0-9][A-Z])?", valor.strip().upper()):
+        return False, "Ingresa un CI de 5 a 10 dígitos, con complemento opcional (ej. 1234567-1A)."
+    return True, ""

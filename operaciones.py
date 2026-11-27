@@ -24,7 +24,7 @@ def asignar(db, perro, hogar, inicio, fin, obs=''):
         c.execute('INSERT INTO asignacion_temporal (id_perro,id_hogar,fecha_inicio,fecha_fin,observaciones) VALUES (%s,%s,%s,%s,%s)',(perro,hogar,inicio,fin,obs))
         estado(c,perro,'Hogar Temporal',direccion,'Asignación temporal')
 
-def adoptar(db, perro, adoptante, fecha, obs=''):
+def adoptar(db, perro, ci, fecha, obs=''):
     if len(obs.strip()) > 200: raise ValueError("Observaciones: máximo 200 caracteres.")
     if date.fromisoformat(fecha)!=date.today(): raise ValueError('La adopción debe registrarse con fecha de hoy.')
     with db.transaccion() as c:
@@ -32,10 +32,12 @@ def adoptar(db, perro, adoptante, fecha, obs=''):
         if c.fetchone()[0] not in ('Disponible','Hogar Temporal'): raise ValueError('El perro no está disponible para adopción.')
         c.execute('SELECT COUNT(*) FROM adopcion WHERE id_perro=%s',(perro,))
         if c.fetchone()[0]: raise ValueError('Ya existe una adopción para este perro.')
-        c.execute('SELECT direccion FROM adoptante WHERE id_adoptante=%s',(adoptante,))
-        direccion=c.fetchone()[0] or 'Hogar adoptivo'
+        c.execute('SELECT direccion FROM adoptante WHERE ci=%s',(ci,))
+        registro = c.fetchone()
+        if registro is None: raise ValueError('El CI del adoptante no está registrado.')
+        direccion=registro[0] or 'Hogar adoptivo'
         c.execute('UPDATE asignacion_temporal SET finalizada=1,fecha_cierre=CURDATE() WHERE id_perro=%s AND finalizada=0',(perro,))
-        c.execute('INSERT INTO adopcion (id_perro,id_adoptante,fecha_adopcion,observaciones) VALUES (%s,%s,%s,%s)',(perro,adoptante,fecha,obs))
+        c.execute('INSERT INTO adopcion (id_perro,ci,fecha_adopcion,observaciones) VALUES (%s,%s,%s,%s)',(perro,ci,fecha,obs))
         estado(c,perro,'Adoptado',direccion,'Adopción')
 
 def finalizar(db, asignacion):
