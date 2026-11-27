@@ -58,6 +58,15 @@
 * asignaciones.py (Módulo de vinculación a hogares temporales)
 * reportes.py (Módulo de interfaz de estadísticas)
 * markov.py (Módulo del modelo matemático y gráficas)
+
+### Sesión 5: Validacion de datos y Adicion de calendario en perritos.py
+ * **Fecha:** [20/11/2026]
+* **Objetivo:** Implementar la validacion de los datos e implementar el calendario para el registro de fechas en el modulo perritos.py
+* * **Actividades realizadas:**
+  * Se incorporó un selector visual de calendario en el formulario de `perritos.py` para facilitar la selección de fechas en un formato estandarizado compatible con MySQL.
+  * Se implementaron reglas de validación de datos en `perritos.py` para verificar campos obligatorios, formatos de texto, rangos numéricos válidos (edad) y evitar la inserción de registros vacíos o erróneos.
+  * Se realizaron pruebas de registro y actualización en la interfaz gráfica comprobando que los datos validados y las fechas seleccionadas se almacenen correctamente en la base de datos
+
 ### Sesión 6: Correccion a las observaciones
  * **Fecha:** [25/11/2026]
 * **Objetivo:** Corregir las observaciones del ingeniero 
@@ -65,12 +74,27 @@
 * Añadimos detalles en el README.md
 * Arreglamos la sintaxis del archivo perritos.py
 * Añadimos un apartado estetico mejorado al programa
-
-### Sesión 7: Validacion de datos y Adicion de calendario en perritos.py
- * **Fecha:** [20/11/2026]
-* **Objetivo:** Implementar la validacion de los datos e implementar el calendario para el registro de fechas en el modulo perritos.py
+de ayer con eso del problema 
+### Sesion 7: Recuperación de historial y sincronización de cambios en el repositorio
+* **Fecha:** [25/11/2026]
+* **Objetivo:** Al intentar subir las actualizaciones locales del sistema mediante `git push --force`, se sobrescribió temporalmente el historial remoto de GitHub, ocultando los 84 commits previos junto con archivos clave del proyecto (`BITACORA.md`, `README.md` y el historial de la carpeta `base_de_datos`). 
 * * **Actividades realizadas:**
-  * Se incorporó un selector visual de calendario en el formulario de `perritos.py` para facilitar la selección de fechas en un formato estandarizado compatible con MySQL.
-  * Se implementaron reglas de validación de datos en `perritos.py` para verificar campos obligatorios, formatos de texto, rangos numéricos válidos (edad) y evitar la inserción de registros vacíos o erróneos.
-  * Se realizaron pruebas de registro y actualización en la interfaz gráfica comprobando que los datos validados y las fechas seleccionadas se almacenen correctamente en la base de datos
-  
+* **Causa raíz:** Existían historias no relacionadas entre el repositorio local recién inicializado y el repositorio remoto, lo que generó conflictos de fusión (`CONFLICT (add/add)`) y posteriormente una sobrescritura forzada de la rama `main`.
+* **Solución aplicada:**
+  1. **Búsqueda de objetos huérfanos:** Se ejecutó `git fsck --lost-found` para localizar en la carpeta oculta `.git` el último commit original descargado previamente desde remoto (`ef306d4`).
+  2. **Limpieza del directorio de trabajo:** Se utilizaron `git reset --hard` y `git clean -fd` para descartar archivos temporales compilados (`__pycache__`) que impedían cambiar de rama.
+  3. **Restauración de la rama:** Se creó una rama de rescate con `git checkout -b recuperado ef306d4` y se verificó la integridad de los 84 commits mediante `git log --oneline`.
+  4. **Sincronización con GitHub:** Se reemplazó la rama `main` incompleta (`git branch -D main` y `git branch -M main`) y se restauró el historial completo en el repositorio remoto (`git push -u origin main --force`).
+  5. **Integración selectiva de avances:** Se añadieron únicamente los módulos modificados del sistema y `base_de_datos/sistema_perritos.sql` mediante `git add <archivos>`, `git commit` y `git push` estándar, conservando intactos `BITACORA.md`, `README.md`, `estilos.py`, `configurar_login.py` y `validaciones.py`.
+
+  ### Sesión 8: Refinamiento de validaciones, widgets de fecha, registros con gráfica, selector dinámico de razas y modelado matemático
+ * **Fecha:** [26/11/2026]
+* **Objetivo:** Ajuste funcional, matemático y de interfaz en el sistema Huellitas sobre los módulos de validación, formularios de registro, vistas de consulta/reportes y proyección estocástica.
+* * **Actividades realizadas:**
+ 
+* **Validaciones (`validaciones.py`):** Se reforzaron las reglas de entrada de texto, incluyendo restricción de caracteres y longitud mínima para evitar nombres conformados por una sola letra.
+* **Calendario (`DateEntry`):** Se corrigió el funcionamiento y sincronización del selector de fechas para asegurar su comportamiento consistente al cargar, limpiar o registrar fechas.
+* **Apartado de registros y visualización gráfica:** Se ajustó la vista de registros para priorizar la visualización de los datos en tabla y añadir un botón dedicado que despliega la gráfica correspondiente bajo demanda.
+* **Selector de razas con campo "Otros":** Se incorporó un desplegable (`Combobox`) con opciones de raza y un campo adicional ("Otros") que se muestra dinámicamente para ingresar una raza personalizada cuando no figura en la lista.
+* **Modelo matemático de cadenas de Markov (`markov.py` y reportes):** Se implementó la proyección dinámica de estados de los perritos a partir de los conteos activos en la base de datos usando vectores de estado y matrices de transición (con `numpy` y `matplotlib`), calculando iteraciones sucesivas mediante producto matricial ($v^{(t+1)} = v^{(t)} P$) y contemplando el caso base de población cero para evitar divisiones indefinidas.
+* **Estado y control de versiones:** Cambios listos para probar en la aplicación y registrar en el repositorio mediante `git add`, `git commit` y `git push` estándar, excluyendo `__pycache__/`.
