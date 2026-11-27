@@ -98,3 +98,10 @@ de ayer con eso del problema
 * **Selector de razas con campo "Otros":** Se incorporó un desplegable (`Combobox`) con opciones de raza y un campo adicional ("Otros") que se muestra dinámicamente para ingresar una raza personalizada cuando no figura en la lista.
 * **Modelo matemático de cadenas de Markov (`markov.py` y reportes):** Se implementó la proyección dinámica de estados de los perritos a partir de los conteos activos en la base de datos usando vectores de estado y matrices de transición (con `numpy` y `matplotlib`), calculando iteraciones sucesivas mediante producto matricial ($v^{(t+1)} = v^{(t)} P$) y contemplando el caso base de población cero para evitar divisiones indefinidas.
 * **Estado y control de versiones:** Cambios listos para probar en la aplicación y registrar en el repositorio mediante `git add`, `git commit` y `git push` estándar, excluyendo `__pycache__/`.
+
+ ### Sesión 8: pendiente
+ * **Fecha:** [27/11/2026]
+* **Objetivo:** 
+* * **Actividades realizadas:**
+ * Adicion de ci
+ * Falta mejorar el apartado grafico de reportes
